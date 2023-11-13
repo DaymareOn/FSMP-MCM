@@ -1,0 +1,55 @@
+<?xml version='1.0'?>
+<PapyrusProject xmlns="PapyrusProject.xsd" 
+    Flags="TESV_Papyrus_Flags.flg" 
+    Game="sse"
+    Anonymize="true" 
+    Output="Scripts" 
+    Optimize="false" 
+    Release="false" 
+    Zip="false"
+    Package="false"
+    Final="false">
+    <Variables>
+        <!-- Set the name of your mod: -->
+        <Variable Name="ModName" Value="FSMP MCM" />
+        <!-- The folder where you store all of your mods -->
+        <Variable Name="ModsFolder" Value="C:\Games\Nolvus\Instances\Nolvus Natural Lighting\MODS\mods\" />
+    </Variables>
+    <Imports>
+        <Import>C:\Games\Nolvus\Instances\Nolvus Natural Lighting\MODS\mods\SKSE 2.0.20\Scripts\Source</Import>
+        <Import>C:\Games\Nolvus\Instances\Nolvus Natural Lighting\MODS\mods\CK scripts\Scripts\Source</Import>
+        <Import>C:\Games\Nolvus\Instances\Nolvus Natural Lighting\MODS\mods\SkyUI_5.1_SDK\Source</Import>
+        <!--<Import>C:\Games\Nolvus\Instances\Nolvus Natural Lighting\MODS\mods\Obituary - NPC Death Log and Notification\scripts\source</Import>-->
+        <!--<Import>C:\Games\Nolvus\Instances\Nolvus Natural Lighting\MODS\mods\Papyrus Extender 5.3.0\Source\scripts</Import>-->
+        <Import>C:\Games\Nolvus\Instances\Nolvus Natural Lighting\MODS\mods\PapyrusUtil SE - Scripting Utility Functions\Source\Scripts</Import>
+        <Import>C:\Games\Nolvus\Instances\Nolvus Natural Lighting\MODS\mods\Console Util 1.4.0 Source\Scripts\Source</Import>
+        <Import>C:\Games\Nolvus\Instances\Nolvus Natural Lighting\MODS\mods\JContainers SE\scripts\source</Import>
+    </Imports>
+    <Folders>
+        <!-- Relative path to folder containing .psc Papyrus source code files for this project -->
+        <Folder>./Source/Scripts</Folder>
+    </Folders>
+    <!-- The following section is for .bsa archives. You can enable it by setting Package="true" in the PapyrusProject -->
+    <Packages Output=".">
+        <Package Name="@ModName" RootDir=".">
+            <Match In="Scripts">*.pex</Match>
+            <!-- <Match In="interface\translations">*.txt</Match> -->
+        </Package>
+        <!-- If you have any texture files, uncomment the following to create a Textures .bsa archive with texture files -->
+        <!-- <Package Name="@ModName - Textures" RootDir=".">
+            <Include>*.dds</Include>
+        </Package> -->
+    </Packages>
+    <!-- The following section is for .zip archive. You can enable it by setting Zip="true" in the PapyrusProject -->
+    <ZipFiles Output="Build">
+        <ZipFile Name="@ModName" RootDir="." Compression="deflate">
+            <!--<Include>@ModName.esp</Include>-->
+            <!--<Include NoRecurse="true">*.bsa</Include>-->
+            <Match In="Scripts\Source">*.psc</Match>
+        </ZipFile>
+    </ZipFiles>
+    <!-- This will remove any *.bsa files in this directory *after* the build, if there are any. Set UseInBuild="false" to disable. -->
+    <PostBuildEvent Description="Post-Build Remove BSA Files" UseInBuild="true">
+        <Command>del /s /q /f *.bsa</Command>
+    </PostBuildEvent>
+</PapyrusProject>

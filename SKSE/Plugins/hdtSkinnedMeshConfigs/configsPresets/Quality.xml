@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<configs>
+    <smp>
+        <logLevel>0</logLevel>
+        <enableNPCFaceParts>true</enableNPCFaceParts>
+        <disableSMPHairWhenWigEquipped>false</disableSMPHairWhenWigEquipped>
+        <clampRotations>true</clampRotations>
+        <rotationSpeedLimit>10.0</rotationSpeedLimit>
+        <unclampedResets>true</unclampedResets>
+        <unclampedResetAngle>130.0</unclampedResetAngle>
+        <useRealTime>true</useRealTime>
+        <autoAdjustMaxSkeletons>true</autoAdjustMaxSkeletons>
+        <maximumActiveSkeletons>60</maximumActiveSkeletons>
+        <percentageOfFrameTime>60</percentageOfFrameTime>
+        <sampleSize>5</sampleSize>
+        <disable1stPersonViewPhysics>true</disable1stPersonViewPhysics>
+        <enableCuda>true</enableCuda>
+    </smp>
+    <solver>
+        <numIterations>50</numIterations>
+        <groupIterations>16</groupIterations>
+        <groupEnableMLCP>true</groupEnableMLCP>
+        <erp>0.2</erp>
+        <min-fps>60</min-fps>
+        <maxSubSteps>4</maxSubSteps>
+    </solver>
+    <wind>
+        <enabled>true</enabled>
+        <windStrength>2.0</windStrength>
+        <distanceForNoWind>50.0</distanceForNoWind>
+        <distanceForMaxWind>4000</distanceForMaxWind>
+    </wind>
+</configs>
