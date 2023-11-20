@@ -16,6 +16,8 @@ String sLabelSimplification = "Simplification"
 String sLabelQuality = "Performance"
 String sLabelWind = "Wind"
 String sLabelPresets = "Presets "; presets seems to be a lowercase papyrus keyword...
+String sLabelClickMe = "Click me!"
+String sLabelLoaded = "Loaded: "
 String[] keys
 int[] presetsInt
 string[] presetsFiles
@@ -126,12 +128,12 @@ Event OnPageReset(String aPage)
 		AddToggleOptionST("ToggleSMP", "smp on", bSMPOn)
 		SetCursorPosition(1)
 		AddHeaderOption("Console commands")
-		AddTextOptionST("SMP", "smp ", "Click me!")
-		AddTextOptionST("SMPReset", "smp reset", "Click me!")
-		AddTextOptionST("SMPList", "smp list", "Click me!")
-		AddTextOptionST("SMPDetail", "smp detail", "Click me!")
-		AddTextOptionST("SMPDumptree", "smp dumptree", "Click me!")
-		AddTextOptionST("SMPQueryOverride", "smp QueryOverride", "Click me!")
+		AddTextOptionST("SMP", "smp ", sLabelClickMe)
+		AddTextOptionST("SMPReset", "smp reset", sLabelClickMe)
+		AddTextOptionST("SMPList", "smp list", sLabelClickMe)
+		AddTextOptionST("SMPDetail", "smp detail", sLabelClickMe)
+		AddTextOptionST("SMPDumptree", "smp dumptree", sLabelClickMe)
+		AddTextOptionST("SMPQueryOverride", "smp QueryOverride", sLabelClickMe)
 	ElseIf (aPage == sLabelSimplification)
 		AddHeaderOption("Disabling some SMP")
 		AddToggleOptionST("ToggleSMPHairWhenWigEquipped", "Disable SMP hair when there's a wig", JMap.getStr(configMapId, "disableSMPHairWhenWigEquipped", "") == "true")
@@ -196,10 +198,16 @@ Event OnPageReset(String aPage)
 	ElseIf (aPage == sLabelPresets)
 		AddHeaderOption("Load preset")
 		presetsFiles = MiscUtil.FilesInFolder(presetFolder, "xml")
+		string sCurrentConfig = MiscUtil.ReadFromFile(configFilePath)
 		int index = 0
 		While (index < presetsFiles.Length)
 			string presetFile = presetsFiles[index]
-			presetsInt[index] = AddTextOption(presetFile, "Click me!")
+			string sThatConfig = MiscUtil.ReadFromFile(presetFolder + "/" + presetFile)
+			if (sThatConfig == sCurrentConfig)
+				presetsInt[index] = AddTextOption(sLabelLoaded + presetFile, sLabelClickMe, OPTION_FLAG_DISABLED)
+			else
+				presetsInt[index] = AddTextOption(presetFile, sLabelClickMe, OPTION_FLAG_NONE)
+			endif
 			index += 1
 		EndWhile
 	Else
@@ -217,9 +225,8 @@ Event OnOptionSelect(int a_option)
 		; Can it happen that we don't find it?...
 		index += 1
 	EndWhile
-	;string[] presetsFiles = MiscUtil.FilesInFolder("Data/SKSE/Plugins/hdtSkinnedMeshConfigs/configsPresets", "xml")
 	loadConfigFile(presetFolder + "/" + presetsFiles[presetFileIndex])
-	Debug.Messagebox("Done: loaded " + presetsFiles[presetFileIndex])
+	ForcePageReset()
 EndEvent
 
 Event OnHighlight(int a_option)
@@ -644,41 +651,41 @@ function setFloatTag(string tag, float value, string formatSTring = "{0}")
 	storeConfig()
 endfunction
 
-Function storeConfig()
-	;Debug.Trace("Storing config")
-	string result = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<configs>\n<smp>\n"
+string Function buildConfigString()
+	string result = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<configs>\n	<smp>\n"
 	int index = 0
 	string value = ""
 	While (index < 14)
 		string tag = keys[index]
 		value = JMap.getStr(configMapId, tag, "")
 		string ev = entaggedValue(tag, value) 
-		result += ev + "\n"
-		;Debug.Trace("tag: "+tag+ " value: "+ev)
+		result += "		" + ev + "\n"
 		index += 1
 	EndWhile
-	result += "</smp>\n<solver>\n"
+	result += "	</smp>\n	<solver>\n"
 	While (index < 20)
 		string tag = keys[index]
 		value = JMap.getStr(configMapId, tag, "")
 		string ev = entaggedValue(tag, value) 
-		result += ev + "\n"
-		;Debug.Trace("tag: "+tag+ " value: "+ev)
+		result += "		" + ev + "\n"
 		index += 1
 	EndWhile
-	result += "</solver>\n<wind>\n"
+	result += "	</solver>\n	<wind>\n"
 	While (index < 24)
 		string tag = keys[index]
 		value = JMap.getStr(configMapId, tag, "")
 		string ev = entaggedValue(tag, value) 
-		result += ev + "\n"
-		;Debug.Trace("tag: "+tag+ " value: "+ev)
+		result += "		" + ev + "\n"
 		index += 1
 	EndWhile
-	result += "</wind>\n</configs>"
+	result += "	</wind>\n</configs>"
+	return result
+endFunction
+
+Function storeConfig()
+	string result = buildConfigString()
 	MiscUtil.WriteToFile(configFilePath, result, false)
 	ConsoleUtil.ExecuteCommand("smp reset")
-	;Debug.Trace("Stored config")
 EndFunction
 
 string Function entaggedValue(string tag, string value)
