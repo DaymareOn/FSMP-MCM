@@ -49,7 +49,18 @@
         </ZipFile>
     </ZipFiles>
     <!-- This will remove any *.bsa files in this directory *after* the build, if there are any. Set UseInBuild="false" to disable. -->
+    <!-->
     <PostBuildEvent Description="Post-Build Remove BSA Files" UseInBuild="true">
         <Command>del /s /q /f *.bsa</Command>
+    </PostBuildEvent>
+    -->
+    <PostBuildEvent Description="Deploy to test and delivery" UseInBuild="true">
+        <Command>xcopy "Scripts" "C:\Games\Nolvus\Instances\Nolvus Natural Lighting\MODS\mods\FSMPM - The FSMP MCM Dev\Scripts\" /E/Y</Command>
+        <Command>xcopy "SKSE" "C:\Games\Nolvus\Instances\Nolvus Natural Lighting\MODS\mods\FSMPM - The FSMP MCM Dev\SKSE\" /E/Y</Command>
+        <Command>xcopy "Source" "C:\Games\Nolvus\Instances\Nolvus Natural Lighting\MODS\mods\FSMPM - The FSMP MCM Dev\Source\" /E/Y</Command>
+
+        <Command>xcopy "Scripts" "C:\Games\Faster HDT-SMP\FSMPM - The FSMP MCM\Scripts\" /E/Y</Command>
+        <Command>xcopy "SKSE" "C:\Games\Faster HDT-SMP\FSMPM - The FSMP MCM\SKSE\" /E/Y</Command>
+        <Command>xcopy "Source" "C:\Games\Faster HDT-SMP\FSMPM - The FSMP MCM\Source\" /E/Y</Command>
     </PostBuildEvent>
 </PapyrusProject>

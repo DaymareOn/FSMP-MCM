@@ -23,101 +23,42 @@ int[] presetsInt
 string[] presetsFiles
 
 int startIndex = 0
-bool loadConfigDone = false
+bool loadConfigDone = false; useless now from version 2
 
 int Function GetVersion()
-	Return 1
+	Return 2
 EndFunction
 
-; Events
-
-Event OnVersionUpdate(int NewVersion)
-	If (NewVersion > 1) && (CurrentVersion != 0)
-		; Some maintenance code
-	EndIf
-EndEvent
-
-Event OnGameReload()
-	configMapId = JMap.object()
-	; We never release this object, we keep it in the savegame.
-	JValue.retain(configMapId, "FSMP MCM")
-	
-	Parent.OnGameReload() ; This calls OnConfigInit() and all necessary events to register the MCM, but only once during first install
-	OnConfigInit() ; We need to call this again so that the loaded strings can get applied to Pages every load game
-
-	FSMPM_PlayerScript.Register()
-EndEvent
+; #################################################################################################
+; #################################################################################################
+; Events 
+; #################################################################################################
+; #################################################################################################
 
 Event OnConfigInit()
-	if loadConfigDone
-		;Debug.Trace("LoadConfig already done, returning")
-		return
-		;Debug.Trace("Error, we should have returned")
+	; configMapId
+	if (!JValue.isExists(1))
+		configMapId = JMap.object()
+		; We never release this object, we keep it in the savegame.
+		JValue.retain(configMapId, "FSMP MCM")
 	else
-		loadConfigDone = true
-		;Debug.Trace("First LoadConfig")
+		configMapId = 1
 	endif
 
-	ModName = "FSMP"
-	Pages = new String[8]
-	Pages[0] = sLabelSimplification
-	Pages[1] = sLabelQuality
-	Pages[2] = sLabelWind
-	Pages[3] = sLabelLogs
-	Pages[4] = ""
-	Pages[5] = sLabelCommands
-	Pages[6] = ""
-	Pages[7] = sLabelPresets
-
-	keys = new String[24]
-	keys[0] = "logLevel"; first serie
-	keys[1] = "enableNPCFaceParts"; unused by FSMP...
-	keys[2] = "disableSMPHairWhenWigEquipped"
-	keys[3] = "clampRotations"
-	keys[4] = "rotationSpeedLimit"
-	keys[5] = "unclampedResets"
-	keys[6] = "unclampedResetAngle"
-	keys[7] = "useRealTime"
-	keys[8] = "autoAdjustMaxSkeletons"
-	keys[9] = "maximumActiveSkeletons"
-	keys[10] = "percentageOfFrameTime"
-	keys[11] = "sampleSize"
-	keys[12] = "disable1stPersonViewPhysics"
-	keys[13] = "enableCuda"
-	keys[14] = "numIterations"; second serie
-	keys[15] = "groupIterations"
-	keys[16] = "groupEnableMLCP"
-	keys[17] = "erp"
-	keys[18] = "min-fps"
-	keys[19] = "maxSubSteps"
-	keys[20] = "enabled"; third serie
-	keys[21] = "windStrength"
-	keys[22] = "distanceForNoWind"
-	keys[23] = "distanceForMaxWind"	
-
-	presetsInt = new int[50]
-
+	initConfig()
 	loadConfigFile(configFilePath)
 EndEvent
 
-function loadConfigFile(string path)
-	startIndex = 0
-	string sConfig = MiscUtil.ReadFromFile(path)
-	;Debug.trace("configs.xml: "+sConfig)
-	int index = 0
-	While (index < keys.Length)
-		string value = getTagValue(keys[index], sConfig, true)
-		JMap.setStr(configMapId, keys[index], value)
-		;Debug.trace("Setting value from xml, key: " + keys[index] + " value: " + value)
-		index += 1
-	EndWhile
-	storeConfig()
-endfunction
+event OnVersionUpdate(int NewVersion)
+endEvent
+
+event OnGameReload()
+	parent.OnGameReload() ; This calls OnConfigInit() and all necessary events to register the MCM, but only once during first install
+	bSMPOn = true
+	self.OnConfigInit()
+endEvent
 
 Event OnPageReset(String aPage)
-	If (aPage == "") ; Every time the mod's MCM is opened
-	Else
-	EndIf
 	UnloadCustomContent()
 	
 	SetTitleText(aPage)
@@ -139,6 +80,9 @@ Event OnPageReset(String aPage)
 		AddToggleOptionST("ToggleSMPHairWhenWigEquipped", "Disable SMP hair when there's a wig", JMap.getStr(configMapId, "disableSMPHairWhenWigEquipped", "") == "true")
 		AddToggleOptionST("Toggle1stPersonViewPhysics", "No SMP for your PC when in 1st person view", JMap.getStr(configMapId, "disable1stPersonViewPhysics", "") == "true")
 		;AddToggleOptionST("ToggleNPCFaceParts", "Enable NPC face parts", JMap.getStr(configMapId, "enableNPCFaceParts", "") == "true")
+		AddEmptyOption()
+		AddHeaderOption("Enabling nearest NPCs")
+		AddSliderOptionST("SliderMinCullingDistance", "SMP is always on below this distance", JMap.getStr(configMapId, "minCullingDistance", 300) as float, "{0}")
 		SetCursorPosition(1)
 		AddHeaderOption("Disabling SMP NPCs")
 		bool autoAdjust = JMap.getStr(configMapId, "autoAdjustMaxSkeletons", "") == "true"
@@ -233,6 +177,205 @@ Event OnHighlight(int a_option)
 	SetInfoText("Click on the preset, it takes several seconds")
 EndEvent
 
+; #################################################################################################
+; #################################################################################################
+; Functions
+; #################################################################################################
+; #################################################################################################
+
+function initConfig()
+	ModName = "FSMP"
+
+	Pages = new String[8]
+	Pages[0] = sLabelSimplification
+	Pages[1] = sLabelQuality
+	Pages[2] = sLabelWind
+	Pages[3] = sLabelLogs
+	Pages[4] = ""
+	Pages[5] = sLabelCommands
+	Pages[6] = ""
+	Pages[7] = sLabelPresets
+
+	keys = new String[25]
+	keys[0] = "logLevel"; first serie
+	keys[1] = "enableNPCFaceParts"; unused by FSMP...
+	keys[2] = "disableSMPHairWhenWigEquipped"
+	keys[3] = "clampRotations"
+	keys[4] = "rotationSpeedLimit"
+	keys[5] = "unclampedResets"
+	keys[6] = "unclampedResetAngle"
+	keys[7] = "useRealTime"
+	keys[8] = "minCullingDistance"
+	keys[9] = "autoAdjustMaxSkeletons"
+	keys[10] = "maximumActiveSkeletons"
+	keys[11] = "percentageOfFrameTime"
+	keys[12] = "sampleSize"
+	keys[13] = "disable1stPersonViewPhysics"
+	keys[14] = "enableCuda"
+	keys[15] = "numIterations"; second serie
+	keys[16] = "groupIterations"
+	keys[17] = "groupEnableMLCP"
+	keys[18] = "erp"
+	keys[19] = "min-fps"
+	keys[20] = "maxSubSteps"
+	keys[21] = "enabled"; third serie
+	keys[22] = "windStrength"
+	keys[23] = "distanceForNoWind"
+	keys[24] = "distanceForMaxWind"	
+
+	presetsInt = new int[50]
+endfunction
+
+function loadConfigFile(string path)
+	startIndex = 0
+	string sConfig = MiscUtil.ReadFromFile(path)
+	int index = 0
+	While (index < keys.Length)
+		string value = getTagValue(keys[index], sConfig, true)
+		JMap.setStr(configMapId, keys[index], value)
+		index += 1
+	EndWhile
+	storeConfig()
+endfunction
+
+Function toggleTagWithoutStoringConfig(string tag, string toggle)
+	string sOldValue = JMap.getStr(configMapId, tag, "")
+	bool bNewValue = sOldValue != "true"
+	SetToggleOptionValueST(bNewValue, false, toggle)
+	string sNewValue = "false"
+	if bNewValue
+		sNewValue = "true"
+	endif
+	JMap.setStr(configMapId, tag, sNewValue)
+EndFunction
+
+Function toggleTag(string tag, string toggle)
+	toggleTagWithoutStoringConfig(tag, toggle)
+	storeConfig()
+EndFunction
+
+function setOpenedSlider(float min, float max, float interval, string tag, float startValue)
+	SetSliderDialogRange(min, max)
+	SetSliderDialogInterval(interval)
+	SetSliderDialogStartValue(JMap.getStr(configMapId, tag, startValue) as float)
+	SetSliderDialogDefaultValue(JMap.getStr(configMapId, tag, startValue) as float)
+endfunction
+
+function setIntTag(string tag, int value)
+	SetSliderOptionValueST(value as float)
+	JMap.setStr(configMapId, tag, value)
+	storeConfig()
+endfunction
+
+function setFloatTag(string tag, float value, string formatSTring = "{0}")
+	SetSliderOptionValueST(value, formatSTring)
+	JMap.setStr(configMapId, tag, value)
+	storeConfig()
+endfunction
+
+string Function buildConfigString()
+	string result = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<configs>\n	<smp>\n"
+	int index = 0
+	string value = ""
+	While (index < 15)
+		string tag = keys[index]
+		value = JMap.getStr(configMapId, tag, "")
+		string ev = entaggedValue(tag, value) 
+		result += "		" + ev + "\n"
+		index += 1
+	EndWhile
+	result += "	</smp>\n	<solver>\n"
+	While (index < 21)
+		string tag = keys[index]
+		value = JMap.getStr(configMapId, tag, "")
+		string ev = entaggedValue(tag, value) 
+		result += "		" + ev + "\n"
+		index += 1
+	EndWhile
+	result += "	</solver>\n	<wind>\n"
+	While (index < 25)
+		string tag = keys[index]
+		value = JMap.getStr(configMapId, tag, "")
+		string ev = entaggedValue(tag, value) 
+		result += "		" + ev + "\n"
+		index += 1
+	EndWhile
+	result += "	</wind>\n</configs>"
+	return result
+endFunction
+
+Function storeConfig()
+	string result = buildConfigString()
+	MiscUtil.WriteToFile(configFilePath, result, false)
+	ConsoleUtil.ExecuteCommand("smp reset")
+EndFunction
+
+string Function entaggedValue(string tag, string value)
+	if (value == "true")
+		value = ">true<"; lowering case. Yup this is a shameful hack to avoid the shameful handling by papyrus of some specific string like 'TRUE' and 'False'...
+	ElseIf (value == "false")
+		value = ">false<"; lowering case
+	else
+		if (tag == "enabled")
+			return "<enabled>"+value+"</enabled>"; lowering case
+		else
+			return "<"+tag+">"+value+"</"+tag+">"
+		endif
+	endif
+	if (tag == "enabled")
+		return "<enabled"+value+"/enabled>"; lowering case
+	else
+		return "<"+tag + value + "/" + tag+">"
+	endif
+EndFunction
+
+string Function getTagValue(string tag, string sConfig, bool sequential = false)
+	string startTag = "<" + tag + ">"
+	string endTag = "</" + tag + ">"
+	int tagLength = StringUtil.GetLength(tag)
+	int startTagIndex = findStringInString(startTag, sConfig, startIndex)
+	int valueIndex = startTagIndex + tagLength + 2
+	int endTagIndex = findStringInString(endTag, sConfig, valueIndex)
+	if sequential
+		startIndex = endTagIndex + tagLength + 3
+	endif
+	return StringUtil.Substring(sConfig, valueIndex, endTagIndex - valueIndex)
+EndFunction
+
+int Function findStringInString(string toFind, string content, int firstIndex = 0)
+	int contentIndex = firstIndex
+	int toFindLength = StringUtil.GetLength(toFind)
+	int contentLength = StringUtil.GetLength(content)
+
+	int currentIndex = 0
+	string[] toFindCharacters = PapyrusUtil.StringArray(toFindLength)
+	while currentIndex < toFindLength
+		toFindCharacters[currentIndex] = StringUtil.GetNthChar(toFind, currentIndex)
+		currentIndex = currentIndex + 1
+	endwhile
+	
+	currentIndex = 0
+	while contentIndex < contentLength
+		string characterFound = StringUtil.GetNthChar(content, contentIndex + currentIndex)		
+		if toFindCharacters[currentIndex] == characterFound
+			currentIndex += 1
+			if currentIndex == toFindLength
+				return contentIndex; found at position contentIndex
+			endif
+		else
+			contentIndex += 1
+			currentIndex = 0
+		endif
+	endwhile
+	return -1; Not found
+EndFunction
+
+; #################################################################################################
+; #################################################################################################
+; States
+; #################################################################################################
+; #################################################################################################
+
 State SliderLog
 	event OnSliderOpenST()
 		setOpenedSlider(0,5,1,"logLevel", 0)
@@ -272,6 +415,20 @@ State SliderUnclampedResetAngle
 
 	Event OnHighlightST()
 		SetInfoText("The angle value in degrees at which the reset occurs")
+	EndEvent
+EndState
+
+State SliderMinCullingDistance
+	event OnSliderOpenST()
+		setOpenedSlider(0, 10000, 1, "minCullingDistance", 300)
+	endEvent
+	
+	event OnSliderAcceptST(float a_value)
+		setFloatTag("minCullingDistance", a_value)
+	endEvent
+
+	Event OnHighlightST()
+		SetInfoText("The distance from camera below which NPCs SMP is always calculated.\nThis is useful when a NPC is just behind the camera, and his cape should float in front of you.\nWithout this, as the camera doesn't see the NPC, his physics is disabled.")
 	EndEvent
 EndState
 
@@ -615,138 +772,3 @@ State SMPQueryOverridde
 		SetInfoText("Click to QueryOverridde")
 	EndEvent
 EndState
-
-; Functions
-
-Function toggleTag(string tag, string toggle)
-	string sOldValue = JMap.getStr(configMapId, tag, "")
-
-	bool bNewValue =  sOldValue != "true"
-	SetToggleOptionValueST(bNewValue, false, toggle)
-	
-	string sNewValue = "false"
-	if bNewValue
-		sNewValue = "true"
-	endif
-	JMap.setStr(configMapId, tag, sNewValue)
-	storeConfig()
-EndFunction
-
-function setOpenedSlider(float min, float max, float interval, string tag, float startValue)
-	SetSliderDialogRange(min, max)
-	SetSliderDialogInterval(interval)
-	SetSliderDialogStartValue(JMap.getStr(configMapId, tag, startValue) as float)
-	SetSliderDialogDefaultValue(JMap.getStr(configMapId, tag, startValue) as float)
-endfunction
-
-function setIntTag(string tag, int value)
-	SetSliderOptionValueST(value as float)
-	JMap.setStr(configMapId, tag, value)
-	storeConfig()
-endfunction
-
-function setFloatTag(string tag, float value, string formatSTring = "{0}")
-	SetSliderOptionValueST(value, formatSTring)
-	JMap.setStr(configMapId, tag, value)
-	storeConfig()
-endfunction
-
-string Function buildConfigString()
-	string result = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<configs>\n	<smp>\n"
-	int index = 0
-	string value = ""
-	While (index < 14)
-		string tag = keys[index]
-		value = JMap.getStr(configMapId, tag, "")
-		string ev = entaggedValue(tag, value) 
-		result += "		" + ev + "\n"
-		index += 1
-	EndWhile
-	result += "	</smp>\n	<solver>\n"
-	While (index < 20)
-		string tag = keys[index]
-		value = JMap.getStr(configMapId, tag, "")
-		string ev = entaggedValue(tag, value) 
-		result += "		" + ev + "\n"
-		index += 1
-	EndWhile
-	result += "	</solver>\n	<wind>\n"
-	While (index < 24)
-		string tag = keys[index]
-		value = JMap.getStr(configMapId, tag, "")
-		string ev = entaggedValue(tag, value) 
-		result += "		" + ev + "\n"
-		index += 1
-	EndWhile
-	result += "	</wind>\n</configs>"
-	return result
-endFunction
-
-Function storeConfig()
-	string result = buildConfigString()
-	MiscUtil.WriteToFile(configFilePath, result, false)
-	ConsoleUtil.ExecuteCommand("smp reset")
-EndFunction
-
-string Function entaggedValue(string tag, string value)
-	if (value == "true")
-		value = ">true<"; lowering case. Yup this is a shameful hack to avoid the shameful handling by papyrus of some specific string like 'TRUE' and 'False'...
-	ElseIf (value == "false")
-		value = ">false<"; lowering case
-	else
-		if (tag == "enabled")
-			return "<enabled>"+value+"</enabled>"; lowering case
-		else
-			return "<"+tag+">"+value+"</"+tag+">"
-		endif
-	endif
-	if (tag == "enabled")
-		return "<enabled"+value+"/enabled>"; lowering case
-	else
-		return "<"+tag + value + "/" + tag+">"
-	endif
-EndFunction
-
-string Function getTagValue(string tag, string sConfig, bool sequential = false)
-	string startTag = "<" + tag + ">"
-	string endTag = "</" + tag + ">"
-	int tagLength = StringUtil.GetLength(tag)
-	int startTagIndex = findStringInString(startTag, sConfig, startIndex)
-	int valueIndex = startTagIndex + tagLength + 2
-	int endTagIndex = findStringInString(endTag, sConfig, valueIndex)
-	if sequential
-		startIndex = endTagIndex + tagLength + 3
-	endif
-	return StringUtil.Substring(sConfig, valueIndex, endTagIndex - valueIndex)
-EndFunction
-
-int Function findStringInString(string toFind, string content, int firstIndex = 0)
-	int contentIndex = firstIndex
-	int toFindLength = StringUtil.GetLength(toFind)
-	int contentLength = StringUtil.GetLength(content)
-
-	int currentIndex = 0
-	string[] toFindCharacters = PapyrusUtil.StringArray(toFindLength)
-	while currentIndex < toFindLength
-		toFindCharacters[currentIndex] = StringUtil.GetNthChar(toFind, currentIndex)
-		currentIndex = currentIndex + 1
-	endwhile
-	
-	currentIndex = 0
-	while contentIndex < contentLength
-		string characterFound = StringUtil.GetNthChar(content, contentIndex + currentIndex)		
-		;Debug.Trace("A: " + contentIndex + " " + currentIndex + " " + "characterFound" + " " + toFindCharacters[currentIndex])
-		if toFindCharacters[currentIndex] == characterFound
-			currentIndex += 1
-			if currentIndex == toFindLength
-				;Debug.Trace("Found: " + contentIndex)
-				return contentIndex; found at position contentIndex
-			endif
-		else
-			contentIndex += 1
-			currentIndex = 0
-		endif
-	endwhile
-	;Debug.Trace("NOT Found toFind: "+toFind+" content: "+content)
-	return -1; Not found
-EndFunction

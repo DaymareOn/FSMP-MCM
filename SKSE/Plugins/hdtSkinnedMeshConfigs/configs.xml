@@ -9,6 +9,7 @@
 		<unclampedResets>true</unclampedResets>
 		<unclampedResetAngle>130.0</unclampedResetAngle>
 		<useRealTime>true</useRealTime>
+		<minCullingDistance>500</minCullingDistance>
 		<autoAdjustMaxSkeletons>true</autoAdjustMaxSkeletons>
 		<maximumActiveSkeletons>5</maximumActiveSkeletons>
 		<percentageOfFrameTime>18</percentageOfFrameTime>

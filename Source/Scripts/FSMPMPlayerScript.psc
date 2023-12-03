@@ -1,7 +1,5 @@
 Scriptname FSMPMPlayerScript extends ReferenceAlias  
 
-;DayCharactersQuest Property CharactersQuest Auto
-
 Event OnInit()
     Debug.Trace("FSMPM - Initing")
 	Register()
