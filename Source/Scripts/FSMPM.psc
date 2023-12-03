@@ -19,6 +19,7 @@ String sLabelPresets = "Presets "; presets seems to be a lowercase papyrus keywo
 String sLabelClickMe = "Click me!"
 String sLabelLoaded = "Loaded: "
 String[] keys
+String[] defaultValues
 int[] presetsInt
 string[] presetsFiles
 
@@ -221,7 +222,34 @@ function initConfig()
 	keys[21] = "enabled"; third serie
 	keys[22] = "windStrength"
 	keys[23] = "distanceForNoWind"
-	keys[24] = "distanceForMaxWind"	
+	keys[24] = "distanceForMaxWind"
+
+	defaultValues = new String[25]
+	defaultValues[0] = "0"; first serie
+	defaultValues[1] = "true"; unused by FSMP...
+	defaultValues[2] = "true"
+	defaultValues[3] = "true"
+	defaultValues[4] = "10"
+	defaultValues[5] = "true"
+	defaultValues[6] = "130"
+	defaultValues[7] = "true"
+	defaultValues[8] = "300"
+	defaultValues[9] = "true"
+	defaultValues[10] = "10"
+	defaultValues[11] = "30"
+	defaultValues[12] = "5"
+	defaultValues[13] = "false"
+	defaultValues[14] = "true"
+	defaultValues[15] = "10"; second serie
+	defaultValues[16] = "4"
+	defaultValues[17] = "false"
+	defaultValues[18] = "0.2"
+	defaultValues[19] = "60"
+	defaultValues[20] = "2"
+	defaultValues[21] = "true"; third serie
+	defaultValues[22] = "2.0"
+	defaultValues[23] = "50.0"
+	defaultValues[24] = "2500"
 
 	presetsInt = new int[50]
 endfunction
@@ -334,6 +362,9 @@ string Function getTagValue(string tag, string sConfig, bool sequential = false)
 	string endTag = "</" + tag + ">"
 	int tagLength = StringUtil.GetLength(tag)
 	int startTagIndex = findStringInString(startTag, sConfig, startIndex)
+	if (startTagIndex == -1); not found
+		return tagDefaultValue(tag)
+	endif
 	int valueIndex = startTagIndex + tagLength + 2
 	int endTagIndex = findStringInString(endTag, sConfig, valueIndex)
 	if sequential
@@ -341,6 +372,21 @@ string Function getTagValue(string tag, string sConfig, bool sequential = false)
 	endif
 	return StringUtil.Substring(sConfig, valueIndex, endTagIndex - valueIndex)
 EndFunction
+
+; This function will be called rarely, so a loop is okay
+string Function tagDefaultValue(string tag)
+	; TODO use this function in the menu too; will need to use a map rather than a loop
+	int i = 0
+	while (i < keys.Length)
+		if (keys[i] == tag)
+			string defaultValue = defaultValues[i]
+			debug.MessageBox("This tag isn't set in the loading file: " + tag + "\nWe set it with the default value: " + defaultValue + "\nTo see the preset as loaded, you'll need to update it.")
+			return defaultValue
+		endif
+		i = i+1
+	endwhile
+	return "Will probably CTD"
+endfunction
 
 int Function findStringInString(string toFind, string content, int firstIndex = 0)
 	int contentIndex = firstIndex
