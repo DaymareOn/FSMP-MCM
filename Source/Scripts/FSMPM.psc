@@ -14,7 +14,7 @@ String sLabelCommands = "Commands"
 String sLabelLogs = "Logs"
 String sLabelSimplification = "Simplification"
 String sLabelQuality = "Performance"
-String sLabelWind = "Wind"
+String sLabelWind = "Wind "; WIND seems to be a papyrus keyword...
 String sLabelPresets = "Presets "; presets seems to be a lowercase papyrus keyword...
 String sLabelClickMe = "Click me!"
 String sLabelLoaded = "Loaded: "
@@ -37,17 +37,12 @@ EndFunction
 ; #################################################################################################
 
 Event OnConfigInit()
-	; configMapId
-	if (!JValue.isExists(1))
-		configMapId = JMap.object()
-		; We never release this object, we keep it in the savegame.
-		JValue.retain(configMapId, "FSMP MCM")
-	else
-		configMapId = 1
-	endif
-
 	initConfig()
+	initMap()
 	loadConfigFile(configFilePath)
+	
+	; This one is to sanitize the config file.
+	storeConfigAndSmpReset()
 EndEvent
 
 event OnVersionUpdate(int NewVersion)
@@ -171,6 +166,7 @@ Event OnOptionSelect(int a_option)
 		index += 1
 	EndWhile
 	loadConfigFile(presetFolder + "/" + presetsFiles[presetFileIndex])
+	storeConfigAndSmpReset()
 	ForcePageReset()
 EndEvent
 
@@ -254,16 +250,30 @@ function initConfig()
 	presetsInt = new int[50]
 endfunction
 
+; Initialize the map with default values
+Function initMap()
+	configMapId = JMap.object()
+	; We never release this object, we keep it in the savegame.
+	JValue.retain(configMapId, "FSMP MCM")
+
+	int index = 0
+	While (index < 25);keys.Length)
+		JMap.setStr(configMapId, keys[index], defaultValues[index])
+		index += 1
+	EndWhile
+EndFunction
+
+; Initialize the map with config file values
 function loadConfigFile(string path)
 	startIndex = 0
 	string sConfig = MiscUtil.ReadFromFile(path)
 	int index = 0
+
 	While (index < keys.Length)
 		string value = getTagValue(keys[index], sConfig, true)
 		JMap.setStr(configMapId, keys[index], value)
 		index += 1
 	EndWhile
-	storeConfig()
 endfunction
 
 Function toggleTagWithoutStoringConfig(string tag, string toggle)
@@ -279,7 +289,7 @@ EndFunction
 
 Function toggleTag(string tag, string toggle)
 	toggleTagWithoutStoringConfig(tag, toggle)
-	storeConfig()
+	storeConfigAndSmpReset()
 EndFunction
 
 function setOpenedSlider(float min, float max, float interval, string tag, float startValue)
@@ -292,13 +302,13 @@ endfunction
 function setIntTag(string tag, int value)
 	SetSliderOptionValueST(value as float)
 	JMap.setStr(configMapId, tag, value)
-	storeConfig()
+	storeConfigAndSmpReset()
 endfunction
 
 function setFloatTag(string tag, float value, string formatSTring = "{0}")
 	SetSliderOptionValueST(value, formatSTring)
 	JMap.setStr(configMapId, tag, value)
-	storeConfig()
+	storeConfigAndSmpReset()
 endfunction
 
 string Function buildConfigString()
@@ -332,7 +342,7 @@ string Function buildConfigString()
 	return result
 endFunction
 
-Function storeConfig()
+Function storeConfigAndSmpReset()
 	string result = buildConfigString()
 	MiscUtil.WriteToFile(configFilePath, result, false)
 	ConsoleUtil.ExecuteCommand("smp reset")
