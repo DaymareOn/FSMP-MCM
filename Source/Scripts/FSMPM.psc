@@ -209,7 +209,7 @@ function initConfig()
 	keys[15] = "groupEnableMLCP"
 	keys[16] = "erp"
 	keys[17] = "min-fps"
-	keys[18] = "maxSubSteps"
+	keys[18] = "maxSubsteps"
 	keys[19] = "enabled"; third serie
 	keys[20] = "windStrength"
 	keys[21] = "distanceForNoWind"
@@ -250,7 +250,7 @@ Function initMap()
 	JValue.retain(configMapId, "FSMP MCM")
 
 	int index = 0
-	While (index < 23);keys.Length)
+	While (index < keys.Length)
 		JMap.setStr(configMapId, keys[index], defaultValues[index])
 		index += 1
 	EndWhile
