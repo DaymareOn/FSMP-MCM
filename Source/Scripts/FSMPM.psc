@@ -93,7 +93,6 @@ Event OnPageReset(String aPage)
 	ElseIf (aPage == sLabelQuality)
 		AddHeaderOption("Simulation quality")
 		AddSliderOptionST("SliderNumIterations", "Simulation quality", JMap.getStr(configMapId, "numIterations", 16) as float)
-		AddSliderOptionST("SliderGroupIterations", "Group simulation quality", JMap.getStr(configMapId, "groupIterations", 16) as float)
 		AddToggleOptionST("ToggleGroupMLCP", "Enable a better simulation", JMap.getStr(configMapId, "groupEnableMLCP", "") == "true")
 		AddSliderOptionST("SliderERP", "ERP ", JMap.getStr(configMapId, "erp", 0.2) as float, "{2}")
 		AddEmptyOption()
@@ -121,8 +120,6 @@ Event OnPageReset(String aPage)
 		AddToggleOptionST("ToggleClampedResets", "Reset SMP when rotation speed isn't limited", clampedResets, clampedResetsOptionFlag)
 		AddSliderOptionST("SliderUnclampedResetAngle", "Angle at which the reset occurs", JMap.getStr(configMapId, "unclampedResetAngle", 120) as float, "{0}", unclampedResetAngleOptionFlag)
 		AddEmptyOption()
-		AddHeaderOption("CUDA")
-		AddToggleOptionST("ToggleCuda", "Enable CUDA", JMap.getStr(configMapId, "enableCuda", "") == "true")
 	ElseIf (aPage == sLabelWind)
 		bool enableWind = JMap.getStr(configMapId, "enabled", "") == "true"
 		int enableWindOptionsFlag = OPTION_FLAG_NONE
@@ -193,7 +190,7 @@ function initConfig()
 	Pages[6] = ""
 	Pages[7] = sLabelPresets
 
-	keys = new String[25]
+	keys = new String[23]
 	keys[0] = "logLevel"; first serie
 	keys[1] = "enableNPCFaceParts"; unused by FSMP...
 	keys[2] = "disableSMPHairWhenWigEquipped"
@@ -208,19 +205,17 @@ function initConfig()
 	keys[11] = "percentageOfFrameTime"
 	keys[12] = "sampleSize"
 	keys[13] = "disable1stPersonViewPhysics"
-	keys[14] = "enableCuda"
-	keys[15] = "numIterations"; second serie
-	keys[16] = "groupIterations"
-	keys[17] = "groupEnableMLCP"
-	keys[18] = "erp"
-	keys[19] = "min-fps"
-	keys[20] = "maxSubSteps"
-	keys[21] = "enabled"; third serie
-	keys[22] = "windStrength"
-	keys[23] = "distanceForNoWind"
-	keys[24] = "distanceForMaxWind"
+	keys[14] = "numIterations"; second serie
+	keys[15] = "groupEnableMLCP"
+	keys[16] = "erp"
+	keys[17] = "min-fps"
+	keys[18] = "maxSubSteps"
+	keys[19] = "enabled"; third serie
+	keys[20] = "windStrength"
+	keys[21] = "distanceForNoWind"
+	keys[22] = "distanceForMaxWind"
 
-	defaultValues = new String[25]
+	defaultValues = new String[23]
 	defaultValues[0] = "0"; first serie
 	defaultValues[1] = "true"; unused by FSMP...
 	defaultValues[2] = "true"
@@ -235,17 +230,15 @@ function initConfig()
 	defaultValues[11] = "30"
 	defaultValues[12] = "5"
 	defaultValues[13] = "false"
-	defaultValues[14] = "true"
-	defaultValues[15] = "10"; second serie
-	defaultValues[16] = "4"
-	defaultValues[17] = "false"
-	defaultValues[18] = "0.2"
-	defaultValues[19] = "60"
-	defaultValues[20] = "2"
-	defaultValues[21] = "true"; third serie
-	defaultValues[22] = "2.0"
-	defaultValues[23] = "50.0"
-	defaultValues[24] = "2500"
+	defaultValues[14] = "10"; second serie
+	defaultValues[15] = "false"
+	defaultValues[16] = "0.2"
+	defaultValues[17] = "60"
+	defaultValues[18] = "2"
+	defaultValues[19] = "true"; third serie
+	defaultValues[20] = "2.0"
+	defaultValues[21] = "50.0"
+	defaultValues[22] = "2500"
 
 	presetsInt = new int[50]
 endfunction
@@ -257,7 +250,7 @@ Function initMap()
 	JValue.retain(configMapId, "FSMP MCM")
 
 	int index = 0
-	While (index < 25);keys.Length)
+	While (index < 23);keys.Length)
 		JMap.setStr(configMapId, keys[index], defaultValues[index])
 		index += 1
 	EndWhile
@@ -315,7 +308,7 @@ string Function buildConfigString()
 	string result = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<configs>\n	<smp>\n"
 	int index = 0
 	string value = ""
-	While (index < 15)
+	While (index < 14)
 		string tag = keys[index]
 		value = JMap.getStr(configMapId, tag, "")
 		string ev = entaggedValue(tag, value) 
@@ -323,7 +316,7 @@ string Function buildConfigString()
 		index += 1
 	EndWhile
 	result += "	</smp>\n	<solver>\n"
-	While (index < 21)
+	While (index < 19)
 		string tag = keys[index]
 		value = JMap.getStr(configMapId, tag, "")
 		string ev = entaggedValue(tag, value) 
@@ -331,7 +324,7 @@ string Function buildConfigString()
 		index += 1
 	EndWhile
 	result += "	</solver>\n	<wind>\n"
-	While (index < 25)
+	While (index < 23)
 		string tag = keys[index]
 		value = JMap.getStr(configMapId, tag, "")
 		string ev = entaggedValue(tag, value) 
@@ -544,20 +537,6 @@ State SliderNumIterations
 	EndEvent
 EndState
 
-State SliderGroupIterations
-	event OnSliderOpenST()
-		setOpenedSlider(0,4096,1,"groupIterations", 16)
-	endEvent
-	
-	event OnSliderAcceptST(float a_value)
-		setIntTag("groupIterations", a_value as int)
-	endEvent
-
-	Event OnHighlightST()
-		SetInfoText("Group simulation quality")
-	EndEvent
-EndState
-
 State SliderERP
 	event OnSliderOpenST()
 		setOpenedSlider(0.01, 0.99, 0.01, "erp", 0.2)
@@ -712,16 +691,6 @@ State Toggle1stPersonViewPhysics
 	
 	Event OnHighlightST()
 		SetInfoText("Check to avoid calculating your character physics when in 1st person view")
-	EndEvent
-EndState
-
-State ToggleCuda
-	Event OnSelectST()
-		toggleTag("enableCuda", "ToggleCuda")
-	EndEvent
-	
-	Event OnHighlightST()
-		SetInfoText("Enable the CUDA code (will be used only if you installed a CUDA version)")
 	EndEvent
 EndState
 
