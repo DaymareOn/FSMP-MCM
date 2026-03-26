@@ -99,7 +99,7 @@ Event OnPageReset(String aPage)
 		AddHeaderOption("Simulation frequency and slowdowns")
 		AddToggleOptionST("ToggleRealTime", "Use your real time", JMap.getStr(configMapId, "useRealTime", "") == "true")
 		AddSliderOptionST("SliderMinFPS", "Simulation frequency", JMap.getStr(configMapId, "min-fps", 60) as float)
-		AddSliderOptionST("SliderMaxSubsteps", "Slowdowns adjustment", JMap.getStr(configMapId, "maxSubsteps", 2) as float)
+		AddSliderOptionST("SliderMaxSubsteps", "Slowdowns adjustment", JMap.getStr(configMapId, "maxSubSteps", 2) as float)
 		SetCursorPosition(1)
 		AddHeaderOption("Limitations")
 		bool clampRotations = JMap.getStr(configMapId, "clampRotations", "") == "true"
@@ -209,7 +209,7 @@ function initConfig()
 	keys[15] = "groupEnableMLCP"
 	keys[16] = "erp"
 	keys[17] = "min-fps"
-	keys[18] = "maxSubsteps"
+	keys[18] = "maxSubSteps"
 	keys[19] = "enabled"; third serie
 	keys[20] = "windStrength"
 	keys[21] = "distanceForNoWind"
@@ -567,11 +567,11 @@ EndState
 
 State SliderMaxSubsteps
 	event OnSliderOpenST()
-		setOpenedSlider(1,60,1,"maxSubsteps", 2)
+		setOpenedSlider(1,60,1,"maxSubSteps", 2)
 	endEvent
 	
 	event OnSliderAcceptST(float a_value)
-		setIntTag("maxSubsteps", a_value as int)
+		setIntTag("maxSubSteps", a_value as int)
 	endEvent
 
 	Event OnHighlightST()
