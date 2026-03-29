@@ -2,7 +2,7 @@
 ScriptName JMap
 
 Int function object() global native
-String function getStr(Int object, String key, String default="") global native
+String function getStr(Int object, String key, Var default="") global native
 function setStr(Int object, String key, String value) global native
 Int function getInt(Int object, String key, Int default=0) global native
 Float function getFlt(Int object, String key, Float default=0.0) global native

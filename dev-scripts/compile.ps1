@@ -24,8 +24,18 @@ function Install-Caprica {
         $zipFile = Join-Path $env:TEMP "$Name.zip"
         $outDir = Join-Path $env:TEMP "$Name-extracted"
         
+        # Provenance: https://github.com/KrisV-777/Caprica/releases/tag/0.3.0a
+        $ExpectedHash = "8bb87175ecf685fb40b07b8805415062157714109bab0925bc0bb0933e4f549c"
+        
         Write-Host "  Downloading from $CapricaUrl..."
         Invoke-WebRequest -Uri $CapricaUrl -OutFile $zipFile -UseBasicParsing
+        
+        Write-Host "  Verifying SHA-256 integrity..."
+        # To manually verify: Get-FileHash -Path "$Name.zip" -Algorithm SHA256
+        $ActualHash = (Get-FileHash -Path $zipFile -Algorithm SHA256).Hash
+        if ($ActualHash -ne $ExpectedHash) {
+            throw "SHA-256 mismatch! Expected $ExpectedHash but got $ActualHash. The download may be corrupted or compromised."
+        }
         
         if (Test-Path $outDir) { Remove-Item -Recurse -Force $outDir }
         Write-Host "  Extracting..."

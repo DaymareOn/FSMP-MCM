@@ -34,6 +34,8 @@ jobs:
             (Resolve-Path "Source/Scripts/Stubs/PapyrusUtil"),
             (Resolve-Path "Source/Scripts/Stubs/ConsoleUtil")
           ) -join ";"
+          if (-not (Test-Path "Scripts")) { New-Item -ItemType Directory -Path "Scripts" }
+          Remove-Item "Scripts/*.pex" -ErrorAction SilentlyContinue
           $output = Resolve-Path "Scripts"
 
           # Compile FSMPM.psc
@@ -53,6 +55,7 @@ jobs:
         shell: powershell
         run: |
           $buildDir = "Build/FSMPM - The FSMP MCM"
+          if (Test-Path "Build") { Remove-Item -Recurse -Force "Build" }
           New-Item -ItemType Directory -Path "$buildDir/Scripts" -Force
           New-Item -ItemType Directory -Path "$buildDir/SKSE/Plugins/hdtSkinnedMeshConfigs/configsPresets" -Force
           New-Item -ItemType Directory -Path "$buildDir/Source/Scripts" -Force

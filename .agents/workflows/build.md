@@ -14,7 +14,6 @@ Compiles the Papyrus source scripts (`.psc`) into compiled Papyrus executables (
 
 ## Build Command
 
-// turbo
 1. Run the compilation script from the repository root:
 
 ```powershell
