@@ -16,8 +16,8 @@ String sLabelSimplification = "Simplification"
 String sLabelQuality = "Performance"
 String sLabelWind = "Wind "; WIND seems to be a papyrus keyword...
 String sLabelPresets = "Presets "; presets seems to be a lowercase papyrus keyword...
-String sLabelClickMe = "Click me!"
-String sLabelLoaded = "Loaded"
+String sLabelClickMe
+String sLabelLoaded
 String sLastLoadedPresetName = ""
 String[] keys
 String[] defaultValues
@@ -25,10 +25,9 @@ int[] presetsInt
 string[] presetsFiles
 
 int startIndex = 0
-bool loadConfigDone = false; useless now from version 2
 
 int Function GetVersion()
-	Return 2
+	Return 3
 EndFunction
 
 ; #################################################################################################
@@ -47,6 +46,10 @@ Event OnConfigInit()
 EndEvent
 
 event OnVersionUpdate(int NewVersion)
+	if (NewVersion >= 3 && CurrentVersion < 3)
+		initConfig()
+		Debug.Notification("FSMP MCM updated to version 3.")
+	endif
 endEvent
 
 event OnGameReload()
@@ -146,6 +149,10 @@ Event OnPageReset(String aPage)
 			endif
 			index += 1
 		EndWhile
+		While (index < presetsInt.Length)
+			presetsInt[index] = 0
+			index += 1
+		EndWhile
 	Else
 		SetTitleText("Faster Skinned Mesh Physics")
 	EndIf
@@ -154,8 +161,8 @@ EndEvent
 Event OnOptionSelect(int a_option)
 	int presetFileIndex = -1
 	int index = 0
-	While (index < presetsInt.Length)
-		if presetsInt[index] == a_option; found
+	While (index < presetsFiles.Length && index < presetsInt.Length)
+		if (presetsInt[index] != 0 && presetsInt[index] == a_option) ; found
 			presetFileIndex = index
 		endif
 		index += 1
@@ -181,6 +188,16 @@ EndEvent
 
 function initConfig()
 	ModName = "FSMP"
+
+	; Initializing here to ensure that the strings are updated on existing saves
+	sLabelCommands = "Commands"
+	sLabelLogs = "Logs"
+	sLabelSimplification = "Simplification"
+	sLabelQuality = "Performance"
+	sLabelWind = "Wind "; WIND seems to be a papyrus keyword...
+	sLabelPresets = "Presets "; presets seems to be a lowercase papyrus keyword...
+	sLabelClickMe = "Click me!"
+	sLabelLoaded = "Loaded!"
 
 	Pages = new String[8]
 	Pages[0] = sLabelSimplification
