@@ -13,9 +13,7 @@ int Function GetInt(string menuName, string target) global native
 float Function GetFloat(string menuName, string target) global native
 string Function GetString(string menuName, string target) global native
 
-Function Invoke(string menuName, string target) global
-    InvokeBool(menuName, target, false)
-EndFunction
+Function Invoke(string menuName, string target) global native
 
 Function InvokeBool(string menuName, string target, bool arg) global native
 Function InvokeInt(string menuName, string target, int arg) global native
