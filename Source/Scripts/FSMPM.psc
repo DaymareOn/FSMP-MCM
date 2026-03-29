@@ -16,18 +16,18 @@ String sLabelSimplification = "Simplification"
 String sLabelQuality = "Performance"
 String sLabelWind = "Wind "; WIND seems to be a papyrus keyword...
 String sLabelPresets = "Presets "; presets seems to be a lowercase papyrus keyword...
-String sLabelClickMe = "Click me!"
-String sLabelLoaded = "Loaded: "
+String sLabelClickMe
+String sLabelLoaded
+String sLastLoadedPresetName = ""
 String[] keys
 String[] defaultValues
 int[] presetsInt
 string[] presetsFiles
 
 int startIndex = 0
-bool loadConfigDone = false; useless now from version 2
 
 int Function GetVersion()
-	Return 2
+	Return 3
 EndFunction
 
 ; #################################################################################################
@@ -46,6 +46,10 @@ Event OnConfigInit()
 EndEvent
 
 event OnVersionUpdate(int NewVersion)
+	if (NewVersion >= 3 && CurrentVersion < 3)
+		initConfig()
+		Debug.Notification("FSMP MCM updated to version 3.")
+	endif
 endEvent
 
 event OnGameReload()
@@ -135,16 +139,18 @@ Event OnPageReset(String aPage)
 	ElseIf (aPage == sLabelPresets)
 		AddHeaderOption("Load preset")
 		presetsFiles = MiscUtil.FilesInFolder(presetFolder, "xml")
-		string sCurrentConfig = MiscUtil.ReadFromFile(configFilePath)
 		int index = 0
-		While (index < presetsFiles.Length)
+		While (index < presetsFiles.Length && index < presetsInt.Length)
 			string presetFile = presetsFiles[index]
-			string sThatConfig = MiscUtil.ReadFromFile(presetFolder + "/" + presetFile)
-			if (sThatConfig == sCurrentConfig)
-				presetsInt[index] = AddTextOption(sLabelLoaded + presetFile, sLabelClickMe, OPTION_FLAG_DISABLED)
+			if (sLastLoadedPresetName == presetFile)
+				presetsInt[index] = AddTextOption(presetFile, sLabelLoaded, OPTION_FLAG_DISABLED)
 			else
 				presetsInt[index] = AddTextOption(presetFile, sLabelClickMe, OPTION_FLAG_NONE)
 			endif
+			index += 1
+		EndWhile
+		While (index < presetsInt.Length)
+			presetsInt[index] = 0
 			index += 1
 		EndWhile
 	Else
@@ -153,18 +159,21 @@ Event OnPageReset(String aPage)
 EndEvent
 
 Event OnOptionSelect(int a_option)
-	int presetFileIndex = 0
+	int presetFileIndex = -1
 	int index = 0
-	While (index < presetsInt.Length)
-		if presetsInt[index] == a_option; found
+	While (index < presetsFiles.Length && index < presetsInt.Length)
+		if (presetsInt[index] != 0 && presetsInt[index] == a_option) ; found
 			presetFileIndex = index
 		endif
-		; Can it happen that we don't find it?...
 		index += 1
 	EndWhile
-	loadConfigFile(presetFolder + "/" + presetsFiles[presetFileIndex])
-	storeConfigAndSmpReset()
-	ForcePageReset()
+	
+	if (presetFileIndex != -1)
+		sLastLoadedPresetName = presetsFiles[presetFileIndex]
+		loadConfigFile(presetFolder + "/" + sLastLoadedPresetName)
+		storeConfigAndSmpReset()
+		ForcePageReset()
+	endif
 EndEvent
 
 Event OnOptionHighlight(int a_option)
@@ -179,6 +188,16 @@ EndEvent
 
 function initConfig()
 	ModName = "FSMP"
+
+	; Initializing here to ensure that the strings are updated on existing saves
+	sLabelCommands = "Commands"
+	sLabelLogs = "Logs"
+	sLabelSimplification = "Simplification"
+	sLabelQuality = "Performance"
+	sLabelWind = "Wind "; WIND seems to be a papyrus keyword...
+	sLabelPresets = "Presets "; presets seems to be a lowercase papyrus keyword...
+	sLabelClickMe = "Click me!"
+	sLabelLoaded = "Loaded!"
 
 	Pages = new String[8]
 	Pages[0] = sLabelSimplification
@@ -278,6 +297,7 @@ Function toggleTagWithoutStoringConfig(string tag, string toggle)
 		sNewValue = "true"
 	endif
 	JMap.setStr(configMapId, tag, sNewValue)
+	sLastLoadedPresetName = ""
 EndFunction
 
 Function toggleTag(string tag, string toggle)
@@ -295,12 +315,14 @@ endfunction
 function setIntTag(string tag, int value)
 	SetSliderOptionValueST(value as float)
 	JMap.setStr(configMapId, tag, value)
+	sLastLoadedPresetName = ""
 	storeConfigAndSmpReset()
 endfunction
 
 function setFloatTag(string tag, float value, string formatSTring = "{0}")
 	SetSliderOptionValueST(value, formatSTring)
 	JMap.setStr(configMapId, tag, value)
+	sLastLoadedPresetName = ""
 	storeConfigAndSmpReset()
 endfunction
 
