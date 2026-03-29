@@ -2,17 +2,43 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "type": "pyro",
-            "projectFile": "skyrimse.ppj",
-            "gamePath": "C:\\Games\\Nolvus\\Instances\\Nolvus Natural Lighting\\STOCK GAME\\",
-            "problemMatcher": [
-                "$PapyrusCompiler"
+            "label": "Build: Dev (Local Project)",
+            "type": "shell",
+            "command": "pwsh",
+            "args": [
+                "-ExecutionPolicy",
+                "Bypass",
+                "-File",
+                "${workspaceFolder}/dev-scripts/compile.ps1",
+                "Dev"
             ],
-            "label": "pyro: Compile Project (skyrimse.ppj)",
             "group": {
                 "kind": "build",
                 "isDefault": true
-            }
+            },
+            "presentation": {
+                "reveal": "always",
+                "panel": "new"
+            },
+            "problemMatcher": "$PapyrusCompiler"
+        },
+        {
+            "label": "Build: Release (CI Stubs)",
+            "type": "shell",
+            "command": "pwsh",
+            "args": [
+                "-ExecutionPolicy",
+                "Bypass",
+                "-File",
+                "${workspaceFolder}/dev-scripts/compile.ps1",
+                "Release"
+            ],
+            "group": "build",
+            "presentation": {
+                "reveal": "always",
+                "panel": "new"
+            },
+            "problemMatcher": "$PapyrusCompiler"
         }
     ]
 }

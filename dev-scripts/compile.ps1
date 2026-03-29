@@ -31,7 +31,6 @@ function Install-Caprica {
         Invoke-WebRequest -Uri $CapricaUrl -OutFile $zipFile -UseBasicParsing
         
         Write-Host "  Verifying SHA-256 integrity..."
-        # To manually verify: Get-FileHash -Path "$Name.zip" -Algorithm SHA256
         $ActualHash = (Get-FileHash -Path $zipFile -Algorithm SHA256).Hash
         if ($ActualHash -ne $ExpectedHash) {
             throw "SHA-256 mismatch! Expected $ExpectedHash but got $ActualHash. The download may be corrupted or compromised."
@@ -59,47 +58,72 @@ function Install-Caprica {
     }
 }
 
+function Get-ProjectConfiguration {
+    param ([string]$ppjFile)
+    
+    if (-not (Test-Path $ppjFile)) {
+        throw "Project file '$ppjFile' not found."
+    }
+    
+    [xml]$ppj = Get-Content $ppjFile
+    
+    $flags = $ppj.PapyrusProject.Flags
+    $imports = @($ppj.PapyrusProject.Imports.Import) | ForEach-Object { $_ }
+    $variables = @{}
+    
+    if ($ppj.PapyrusProject.Variables) {
+        foreach ($var in $ppj.PapyrusProject.Variables.Variable) {
+            $variables[$var.Name] = $var.Value
+        }
+    }
+
+    # Resolve variables in paths (e.g. $(ModWorkingFolder))
+    $resolvedFlags = $flags
+    $resolvedImports = @()
+    
+    foreach ($vName in $variables.Keys) {
+        if ($resolvedFlags) { $resolvedFlags = $resolvedFlags.Replace("`$($vName)", $variables[$vName]) }
+    }
+    
+    foreach ($imp in $imports) {
+        $rImp = $imp
+        foreach ($vName in $variables.Keys) {
+            if ($rImp) { $rImp = $rImp.Replace("`$($vName)", $variables[$vName]) }
+        }
+        $resolvedImports += $rImp
+    }
+
+    return @{
+        Flags = $resolvedFlags
+        Imports = ($resolvedImports -join ";")
+        Output = $ppj.PapyrusProject.Output
+    }
+}
+
 $CapricaDir = "Caprica"
 $CapricaExe = "$CapricaDir/Caprica.exe"
 
 if (-not (Test-Path $CapricaExe)) {
     if (-not (Install-Caprica -DestDir $CapricaDir)) {
         Write-Error "Caprica compiler not found and auto-download failed."
-        Write-Host "Please manually download Caprica.exe and place it in the Caprica/ folder."
-        Write-Host "Download from: https://github.com/KrisV-777/Caprica/releases"
         Pop-Location
         exit 1
     }
 }
 
-$OutputDir = "Scripts"
-$FlagsFile = "Source/Scripts/Stubs/BaseGame/TESV_Papyrus_Flags.flg"
+$PPJ = if ($Mode -eq "Dev") { "skyrimse.dev.ppj" } else { "skyrimse_ci.ppj" }
 
-if ($Mode -eq "Release") {
-    Write-Host "--- RELEASE BUILD (Using Stubs) ---"
-    $Imports = @(
-        "Source/Scripts",
-        "Source/Scripts/SkyUI_SDK",
-        "Source/Scripts/Stubs/BaseGame",
-        "Source/Scripts/Stubs/SKSE",
-        "Source/Scripts/Stubs/JContainers",
-        "Source/Scripts/Stubs/PapyrusUtil",
-        "Source/Scripts/Stubs/ConsoleUtil"
-    ) -join ";"
-} else {
-    Write-Host "--- DEV BUILD (Using Local Scripts) ---"
-    # --- ADJUST THESE PATHS TO MATCH YOUR LOCAL ENVIRONMENT ---
-    # These should stay in sync with your skyrimse.dev.ppj
-    $FlagsFile = "C:\Games\Skyrim Special Edition\Data\Source\Scripts\TESV_Papyrus_Flags.flg"
-    $Imports = @(
-        "Source/Scripts",
-        "C:\Dev\SkyrimMods\SKSE64\Data\Scripts\Source",
-        "C:\Games\Skyrim Special Edition\Data\Source\Scripts",
-        "Source/Scripts/SkyUI_SDK", 
-        "C:\Dev\SkyrimMods\PapyrusUtil\Source\Scripts",
-        "C:\Dev\SkyrimMods\ConsoleUtilSSE\Scripts\Source",
-        "C:\Dev\SkyrimMods\JContainers\scripts\source"
-    ) -join ";"
+Write-Host "--- BUILD MODE: $Mode (Using Project: $PPJ) ---"
+
+try {
+    $Config = Get-ProjectConfiguration -ppjFile $PPJ
+    $FlagsFile = $Config.Flags
+    $Imports = $Config.Imports
+    $OutputDir = $Config.Output
+} catch {
+    Write-Error $_
+    Pop-Location
+    exit 1
 }
 
 # Ensure output directory exists
@@ -120,26 +144,5 @@ foreach ($file in $SourceFiles) {
 }
 
 Write-Host "All scripts compiled successfully."
-
-# Optional: Run local deployment if in Dev mode and successful
-if ($Mode -eq "Dev") {
-    Write-Host "Running local deployment..."
-    # ADJUST THESE TO YOUR MOD MANAGER OR GAME DATA FOLDER
-    $DeployPaths = @(
-        "C:\Games\Skyrim Special Edition\Data\",
-        "C:\Modding\FSMPM_Dev_Instance\"
-    )
-    
-    foreach ($dest in $DeployPaths) {
-        if (Test-Path $dest) {
-            Write-Host "  Copying to $dest"
-            xcopy "Scripts" "$($dest)Scripts\" /E/Y/Q
-            xcopy "SKSE" "$($dest)SKSE\" /E/Y/Q
-            xcopy "Source" "$($dest)Source\" /E/Y/Q
-        } else {
-            Write-Verbose "  Skip: $dest not found"
-        }
-    }
-}
 
 Pop-Location
