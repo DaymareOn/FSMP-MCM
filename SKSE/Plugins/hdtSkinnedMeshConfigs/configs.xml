@@ -12,7 +12,7 @@
 		<minCullingDistance>500</minCullingDistance>
 		<autoAdjustMaxSkeletons>true</autoAdjustMaxSkeletons>
 		<maximumActiveSkeletons>5</maximumActiveSkeletons>
-		<percentageOfFrameTime>18</percentageOfFrameTime>
+		<budgetMs>3</budgetMs>
 		<sampleSize>5</sampleSize>
 		<disable1stPersonViewPhysics>true</disable1stPersonViewPhysics>
 	</smp>

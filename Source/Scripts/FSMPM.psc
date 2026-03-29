@@ -87,7 +87,7 @@ Event OnPageReset(String aPage)
 			autoAdjustOptionsFlag = 1
 		endif
 		AddToggleOptionST("ToggleAutoAdjustMaxSkeletons", "Auto adjust the max number of SMP NPCs", autoAdjust)
-		AddSliderOptionST("SliderTimeFramePercentage", "Allowed percentage of frame time for SMP", JMap.getStr(configMapId, "percentageOfFrameTime", 30) as float, "{0}", autoAdjustOptionsFlag)
+		AddSliderOptionST("SliderTimeFrameBudget", "Allowed frame time budget for SMP (ms)", JMap.getStr(configMapId, "budgetMs", 3.5) as float, "{1}", autoAdjustOptionsFlag)
 		AddSliderOptionST("SliderMaxSkeletons", "Maximum SMP NPC number", JMap.getStr(configMapId, "maximumActiveSkeletons", 40) as float, "{0}", autoAdjustOptionsFlag)
 		AddSliderOptionST("SliderSampleSize", "Adjustment speed", JMap.getStr(configMapId, "sampleSize", 5) as float, "{0}", autoAdjustOptionsFlag)
 	ElseIf (aPage == sLabelQuality)
@@ -202,7 +202,7 @@ function initConfig()
 	keys[8] = "minCullingDistance"
 	keys[9] = "autoAdjustMaxSkeletons"
 	keys[10] = "maximumActiveSkeletons"
-	keys[11] = "percentageOfFrameTime"
+	keys[11] = "budgetMs"
 	keys[12] = "sampleSize"
 	keys[13] = "disable1stPersonViewPhysics"
 	keys[14] = "numIterations"; second serie
@@ -227,7 +227,7 @@ function initConfig()
 	defaultValues[8] = "300"
 	defaultValues[9] = "true"
 	defaultValues[10] = "10"
-	defaultValues[11] = "30"
+	defaultValues[11] = "3.5"
 	defaultValues[12] = "5"
 	defaultValues[13] = "false"
 	defaultValues[14] = "10"; second serie
@@ -495,17 +495,17 @@ State SliderMaxSkeletons
 	EndEvent
 EndState
 
-State SliderTimeFramePercentage
+State SliderTimeFrameBudget
 	event OnSliderOpenST()
-		setOpenedSlider(1,1000,1,"percentageOfFrameTime", 30)
+		setOpenedSlider(0.1,16.0,0.1,"budgetMs", 3.5)
 	endEvent
 	
 	event OnSliderAcceptST(float a_value)
-		setIntTag("percentageOfFrameTime", a_value as int)
+		setFloatTag("budgetMs", a_value, "{1}")
 	endEvent
 
 	Event OnHighlightST()
-		SetInfoText("Allowed CPU time for SMP calculus each frame:\na percentage of 16 ms -- Example: 30% = 5ms each frame")
+		SetInfoText("Allowed CPU time for SMP calculus each frame in milliseconds.")
 	EndEvent
 EndState
 
