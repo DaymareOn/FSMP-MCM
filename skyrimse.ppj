@@ -1,60 +1,43 @@
 <?xml version='1.0'?>
 <PapyrusProject xmlns="PapyrusProject.xsd" 
-    Flags="TESV_Papyrus_Flags.flg" 
+    Flags="Source/Scripts/Stubs/BaseGame/TESV_Papyrus_Flags.flg" 
     Game="sse"
     Anonymize="true" 
     Output="Scripts" 
     Optimize="false" 
     Release="false" 
-    Zip="false"
+    Zip="true"
     Package="false"
     Final="false">
     <Variables>
         <!-- Set the name of your mod: -->
         <Variable Name="ModName" Value="FSMP MCM" />
-        <!-- The folder where you store all of your mods -->
-        <Variable Name="ModsFolder" Value="C:\Games\Nolvus\Instances\Nolvus Natural Lighting\MODS\mods\" />
     </Variables>
     <Imports>
-        <Import>C:\Games\Nolvus\Instances\Nolvus Natural Lighting\MODS\mods\SKSE 2.0.20\Scripts\Source</Import>
-        <Import>C:\Games\Nolvus\Instances\Nolvus Natural Lighting\MODS\mods\CK scripts\Scripts\Source</Import>
-        <Import>C:\Games\Nolvus\Instances\Nolvus Natural Lighting\MODS\mods\SkyUI_5.1_SDK\Source</Import>
-        <!--<Import>C:\Games\Nolvus\Instances\Nolvus Natural Lighting\MODS\mods\Obituary - NPC Death Log and Notification\scripts\source</Import>-->
-        <!--<Import>C:\Games\Nolvus\Instances\Nolvus Natural Lighting\MODS\mods\Papyrus Extender 5.3.0\Source\scripts</Import>-->
-        <Import>C:\Games\Nolvus\Instances\Nolvus Natural Lighting\MODS\mods\PapyrusUtil SE - Scripting Utility Functions\Source\Scripts</Import>
-        <Import>C:\Games\Nolvus\Instances\Nolvus Natural Lighting\MODS\mods\Console Util 1.4.0 Source\Scripts\Source</Import>
-        <Import>C:\Games\Nolvus\Instances\Nolvus Natural Lighting\MODS\mods\JContainers SE\scripts\source</Import>
+        <Import>./Source/Scripts</Import>
+        <Import>./Source/Scripts/SkyUI_SDK</Import>
+        <Import>./Source/Scripts/Stubs/BaseGame</Import>
+        <Import>./Source/Scripts/Stubs/SKSE</Import>
+        <Import>./Source/Scripts/Stubs/JContainers</Import>
+        <Import>./Source/Scripts/Stubs/PapyrusUtil</Import>
+        <Import>./Source/Scripts/Stubs/ConsoleUtil</Import>
     </Imports>
     <Folders>
         <!-- Relative path to folder containing .psc Papyrus source code files for this project -->
         <Folder>./Source/Scripts</Folder>
     </Folders>
-    <!-- The following section is for .bsa archives. You can enable it by setting Package="true" in the PapyrusProject -->
-    <Packages Output=".">
-        <Package Name="@ModName" RootDir=".">
-            <Match In="Scripts">*.pex</Match>
-            <!-- <Match In="interface\translations">*.txt</Match> -->
-        </Package>
-        <!-- If you have any texture files, uncomment the following to create a Textures .bsa archive with texture files -->
-        <!-- <Package Name="@ModName - Textures" RootDir=".">
-            <Include>*.dds</Include>
-        </Package> -->
-    </Packages>
-    <!-- The following section is for .zip archive. You can enable it by setting Zip="true" in the PapyrusProject -->
+    <!-- Distributable ZIP for Mod Managers (MO2, Vortex) -->
     <ZipFiles Output="Build">
         <ZipFile Name="@ModName" RootDir="." Compression="deflate">
-            <!--<Include>@ModName.esp</Include>-->
-            <!--<Include NoRecurse="true">*.bsa</Include>-->
-            <Match In="Scripts\Source">*.psc</Match>
+            <Include>FSMPM - The FSMP MCM.esp</Include>
+            <Match In="Scripts">*.pex</Match>
+            <Match In="SKSE\Plugins\hdtSkinnedMeshConfigs">configs.xml</Match>
+            <Match In="SKSE\Plugins\hdtSkinnedMeshConfigs\configsPresets">*.xml</Match>
         </ZipFile>
     </ZipFiles>
-    <!-- This will remove any *.bsa files in this directory *after* the build, if there are any. Set UseInBuild="false" to disable. -->
-    <!-->
-    <PostBuildEvent Description="Post-Build Remove BSA Files" UseInBuild="true">
-        <Command>del /s /q /f *.bsa</Command>
-    </PostBuildEvent>
-    -->
-    <PostBuildEvent Description="Deploy to test and delivery" UseInBuild="true">
+    <!-- Machine-specific deployment events. Uncomment and adjust paths if needed. -->
+    <!--
+    <PostBuildEvent Description="Deploy to local dev instances" UseInBuild="true">
         <Command>xcopy "Scripts" "C:\Games\Nolvus\Instances\Nolvus Natural Lighting\MODS\mods\FSMPM - The FSMP MCM Dev\Scripts\" /E/Y</Command>
         <Command>xcopy "SKSE" "C:\Games\Nolvus\Instances\Nolvus Natural Lighting\MODS\mods\FSMPM - The FSMP MCM Dev\SKSE\" /E/Y</Command>
         <Command>xcopy "Source" "C:\Games\Nolvus\Instances\Nolvus Natural Lighting\MODS\mods\FSMPM - The FSMP MCM Dev\Source\" /E/Y</Command>
@@ -63,4 +46,5 @@
         <Command>xcopy "SKSE" "C:\Games\Faster HDT-SMP\FSMPM - The FSMP MCM\SKSE\" /E/Y</Command>
         <Command>xcopy "Source" "C:\Games\Faster HDT-SMP\FSMPM - The FSMP MCM\Source\" /E/Y</Command>
     </PostBuildEvent>
-</PapyrusProject>
+    -->
+</PapyrusProject>
