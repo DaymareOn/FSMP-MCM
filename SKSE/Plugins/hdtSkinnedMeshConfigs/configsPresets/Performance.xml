@@ -12,14 +12,12 @@
 		<minCullingDistance>300</minCullingDistance>
 		<autoAdjustMaxSkeletons>true</autoAdjustMaxSkeletons>
 		<maximumActiveSkeletons>5</maximumActiveSkeletons>
-		<percentageOfFrameTime>18</percentageOfFrameTime>
+		<budgetMs>2.8</budgetMs>
 		<sampleSize>5</sampleSize>
 		<disable1stPersonViewPhysics>true</disable1stPersonViewPhysics>
-		<enableCuda>true</enableCuda>
 	</smp>
 	<solver>
 		<numIterations>8</numIterations>
-		<groupIterations>16</groupIterations>
 		<groupEnableMLCP>false</groupEnableMLCP>
 		<erp>0.2</erp>
 		<min-fps>60</min-fps>
