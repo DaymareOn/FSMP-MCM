@@ -1,6 +1,6 @@
 # FSMP-MCM
 
-![Build Status](https://github.com/KaninHop/FSMP-MCM/actions/workflows/build.yml/badge.svg)
+![Build Status](https://github.com/DaymareOn/FSMP-MCM/actions/workflows/build.yml/badge.svg)
 
 The Faster Skinned Mesh Physics Mod Configuration Menu for Skyrim.
 
