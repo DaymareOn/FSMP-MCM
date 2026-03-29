@@ -19,6 +19,7 @@ String sLabelPresets = "Presets "; presets seems to be a lowercase papyrus keywo
 String sLabelClickMe
 String sLabelLoaded
 String sLastLoadedPresetName = ""
+bool bLastTagFound = true
 String[] keys
 String[] defaultValues
 int[] presetsInt
@@ -291,10 +292,10 @@ bool function loadConfigFile(string path)
 	bool allFound = true
 	While (index < keys.Length)
 		string tag = keys[index]
-		if (findStringInString("<" + tag + ">", sConfig, 0) == -1)
+		string value = getTagValue(tag, sConfig, true)
+		if (!bLastTagFound)
 			allFound = false
 		endif
-		string value = getTagValue(tag, sConfig, true)
 		JMap.setStr(configMapId, tag, value)
 		index += 1
 	EndWhile
@@ -401,8 +402,10 @@ string Function getTagValue(string tag, string sConfig, bool sequential = false)
 	int tagLength = StringUtil.GetLength(tag)
 	int startTagIndex = findStringInString(startTag, sConfig, startIndex)
 	if (startTagIndex == -1); not found
+		bLastTagFound = false
 		return tagDefaultValue(tag)
 	endif
+	bLastTagFound = true
 	int valueIndex = startTagIndex + tagLength + 2
 	int endTagIndex = findStringInString(endTag, sConfig, valueIndex)
 	if sequential
