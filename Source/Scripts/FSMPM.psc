@@ -17,7 +17,8 @@ String sLabelQuality = "Performance"
 String sLabelWind = "Wind "; WIND seems to be a papyrus keyword...
 String sLabelPresets = "Presets "; presets seems to be a lowercase papyrus keyword...
 String sLabelClickMe = "Click me!"
-String sLabelLoaded = "Loaded: "
+String sLabelLoaded = "Loaded"
+String sLastLoadedPresetName = ""
 String[] keys
 String[] defaultValues
 int[] presetsInt
@@ -135,13 +136,11 @@ Event OnPageReset(String aPage)
 	ElseIf (aPage == sLabelPresets)
 		AddHeaderOption("Load preset")
 		presetsFiles = MiscUtil.FilesInFolder(presetFolder, "xml")
-		string sCurrentConfig = MiscUtil.ReadFromFile(configFilePath)
 		int index = 0
-		While (index < presetsFiles.Length)
+		While (index < presetsFiles.Length && index < presetsInt.Length)
 			string presetFile = presetsFiles[index]
-			string sThatConfig = MiscUtil.ReadFromFile(presetFolder + "/" + presetFile)
-			if (sThatConfig == sCurrentConfig)
-				presetsInt[index] = AddTextOption(sLabelLoaded + presetFile, sLabelClickMe, OPTION_FLAG_DISABLED)
+			if (sLastLoadedPresetName == presetFile)
+				presetsInt[index] = AddTextOption(presetFile, sLabelLoaded, OPTION_FLAG_DISABLED)
 			else
 				presetsInt[index] = AddTextOption(presetFile, sLabelClickMe, OPTION_FLAG_NONE)
 			endif
@@ -153,21 +152,24 @@ Event OnPageReset(String aPage)
 EndEvent
 
 Event OnOptionSelect(int a_option)
-	int presetFileIndex = 0
+	int presetFileIndex = -1
 	int index = 0
 	While (index < presetsInt.Length)
 		if presetsInt[index] == a_option; found
 			presetFileIndex = index
 		endif
-		; Can it happen that we don't find it?...
 		index += 1
 	EndWhile
-	loadConfigFile(presetFolder + "/" + presetsFiles[presetFileIndex])
-	storeConfigAndSmpReset()
-	ForcePageReset()
+	
+	if (presetFileIndex != -1)
+		sLastLoadedPresetName = presetsFiles[presetFileIndex]
+		loadConfigFile(presetFolder + "/" + sLastLoadedPresetName)
+		storeConfigAndSmpReset()
+		ForcePageReset()
+	endif
 EndEvent
 
-Event OnHighlight(int a_option)
+Event OnOptionHighlight(int a_option)
 	SetInfoText("Click on the preset, it takes several seconds")
 EndEvent
 
@@ -278,6 +280,7 @@ Function toggleTagWithoutStoringConfig(string tag, string toggle)
 		sNewValue = "true"
 	endif
 	JMap.setStr(configMapId, tag, sNewValue)
+	sLastLoadedPresetName = ""
 EndFunction
 
 Function toggleTag(string tag, string toggle)
@@ -295,12 +298,14 @@ endfunction
 function setIntTag(string tag, int value)
 	SetSliderOptionValueST(value as float)
 	JMap.setStr(configMapId, tag, value)
+	sLastLoadedPresetName = ""
 	storeConfigAndSmpReset()
 endfunction
 
 function setFloatTag(string tag, float value, string formatSTring = "{0}")
 	SetSliderOptionValueST(value, formatSTring)
 	JMap.setStr(configMapId, tag, value)
+	sLastLoadedPresetName = ""
 	storeConfigAndSmpReset()
 endfunction
 
