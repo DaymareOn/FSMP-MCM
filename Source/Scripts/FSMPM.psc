@@ -169,8 +169,12 @@ Event OnOptionSelect(int a_option)
 	EndWhile
 	
 	if (presetFileIndex != -1)
-		sLastLoadedPresetName = presetsFiles[presetFileIndex]
-		loadConfigFile(presetFolder + "/" + sLastLoadedPresetName)
+		string presetName = presetsFiles[presetFileIndex]
+		if (loadConfigFile(presetFolder + "/" + presetName))
+			sLastLoadedPresetName = presetName
+		else
+			sLastLoadedPresetName = ""
+		endif
 		storeConfigAndSmpReset()
 		ForcePageReset()
 	endif
@@ -276,16 +280,25 @@ Function initMap()
 EndFunction
 
 ; Initialize the map with config file values
-function loadConfigFile(string path)
+bool function loadConfigFile(string path)
 	startIndex = 0
 	string sConfig = MiscUtil.ReadFromFile(path)
-	int index = 0
+	if (sConfig == "")
+		return false
+	endif
 
+	int index = 0
+	bool allFound = true
 	While (index < keys.Length)
-		string value = getTagValue(keys[index], sConfig, true)
-		JMap.setStr(configMapId, keys[index], value)
+		string tag = keys[index]
+		if (findStringInString("<" + tag + ">", sConfig, 0) == -1)
+			allFound = false
+		endif
+		string value = getTagValue(tag, sConfig, true)
+		JMap.setStr(configMapId, tag, value)
 		index += 1
 	EndWhile
+	return allFound
 endfunction
 
 Function toggleTagWithoutStoringConfig(string tag, string toggle)
