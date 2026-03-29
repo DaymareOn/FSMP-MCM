@@ -1,0 +1,37 @@
+<?xml version='1.0'?>
+<!-- CI-only project file. All dependencies are in-repo. -->
+<PapyrusProject xmlns="PapyrusProject.xsd" 
+    Flags="Source/Scripts/Stubs/BaseGame/TESV_Papyrus_Flags.flg" 
+    Game="sse"
+    Anonymize="true" 
+    Output="Scripts" 
+    Optimize="false" 
+    Release="false" 
+    Zip="true"
+    Package="false"
+    Final="false">
+    <Variables>
+        <Variable Name="ModName" Value="FSMP MCM" />
+    </Variables>
+    <Imports>
+        <Import>./Source/Scripts</Import>
+        <Import>./Source/Scripts/SkyUI_SDK</Import>
+        <Import>./Source/Scripts/Stubs/BaseGame</Import>
+        <Import>./Source/Scripts/Stubs/SKSE</Import>
+        <Import>./Source/Scripts/Stubs/JContainers</Import>
+        <Import>./Source/Scripts/Stubs/PapyrusUtil</Import>
+        <Import>./Source/Scripts/Stubs/ConsoleUtil</Import>
+    </Imports>
+    <Folders>
+        <Folder>./Source/Scripts</Folder>
+    </Folders>
+    <!-- Distributable ZIP for Mod Managers (MO2, Vortex) -->
+    <ZipFiles Output="Build">
+        <ZipFile Name="@ModName" RootDir="." Compression="deflate">
+            <Include>FSMPM - The FSMP MCM.esp</Include>
+            <Match In="Scripts">*.pex</Match>
+            <Match In="SKSE\Plugins\hdtSkinnedMeshConfigs">configs.xml</Match>
+            <Match In="SKSE\Plugins\hdtSkinnedMeshConfigs\configsPresets">*.xml</Match>
+        </ZipFile>
+    </ZipFiles>
+</PapyrusProject>

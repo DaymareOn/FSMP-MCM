@@ -1,0 +1,71 @@
+name: Build FSMP MCM
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup CI Dependencies
+        shell: powershell
+        run: ./dev-scripts/setup_ci.ps1
+
+      - name: Compile Papyrus Scripts
+        shell: powershell
+        run: |
+          $flagsFile = Resolve-Path "Source/Scripts/Stubs/BaseGame/TESV_Papyrus_Flags.flg"
+          $imports = @(
+            (Resolve-Path "Source/Scripts"),
+            (Resolve-Path "Source/Scripts/SkyUI_SDK"),
+            (Resolve-Path "Source/Scripts/Stubs/BaseGame"),
+            (Resolve-Path "Source/Scripts/Stubs/SKSE"),
+            (Resolve-Path "Source/Scripts/Stubs/JContainers"),
+            (Resolve-Path "Source/Scripts/Stubs/PapyrusUtil"),
+            (Resolve-Path "Source/Scripts/Stubs/ConsoleUtil")
+          ) -join ";"
+          $output = Resolve-Path "Scripts"
+
+          # Compile FSMPM.psc
+          $fsmpm = Resolve-Path "Source/Scripts/FSMPM.psc"
+          & ./ci_tools/Caprica.exe --game skyrim --flags "$flagsFile" --import "$imports" --output "$output" --ignorecwd "$fsmpm"
+          if ($LASTEXITCODE -ne 0) { throw "FSMPM.psc compilation failed" }
+
+          # Compile FSMPMPlayerScript.psc
+          $player = Resolve-Path "Source/Scripts/FSMPMPlayerScript.psc"
+          & ./ci_tools/Caprica.exe --game skyrim --flags "$flagsFile" --import "$imports" --output "$output" --ignorecwd "$player"
+          if ($LASTEXITCODE -ne 0) { throw "FSMPMPlayerScript.psc compilation failed" }
+
+          Write-Host "All scripts compiled successfully."
+          Get-ChildItem Scripts/*.pex | ForEach-Object { Write-Host "  $($_.Name) - $($_.Length) bytes" }
+
+      - name: Package Distributable
+        shell: powershell
+        run: |
+          $buildDir = "Build/FSMPM - The FSMP MCM"
+          New-Item -ItemType Directory -Path "$buildDir/Scripts" -Force
+          New-Item -ItemType Directory -Path "$buildDir/SKSE/Plugins/hdtSkinnedMeshConfigs/configsPresets" -Force
+          New-Item -ItemType Directory -Path "$buildDir/Source/Scripts" -Force
+
+          Copy-Item "FSMPM - The FSMP MCM.esp" $buildDir/
+          Copy-Item Scripts/*.pex "$buildDir/Scripts/"
+          Copy-Item SKSE/Plugins/hdtSkinnedMeshConfigs/configs.xml "$buildDir/SKSE/Plugins/hdtSkinnedMeshConfigs/"
+          Copy-Item SKSE/Plugins/hdtSkinnedMeshConfigs/configsPresets/*.xml "$buildDir/SKSE/Plugins/hdtSkinnedMeshConfigs/configsPresets/"
+          Copy-Item Source/Scripts/FSMPM.psc "$buildDir/Source/Scripts/"
+          Copy-Item Source/Scripts/FSMPMPlayerScript.psc "$buildDir/Source/Scripts/"
+
+          Compress-Archive -Path "$buildDir/*" -DestinationPath "Build/FSMP-MCM.zip" -Force
+          Write-Host "Distributable archive created: Build/FSMP-MCM.zip"
+
+      - name: Upload Build Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: FSMP-MCM
+          path: Build/FSMP-MCM.zip

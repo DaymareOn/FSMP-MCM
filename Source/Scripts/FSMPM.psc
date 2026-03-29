@@ -167,7 +167,7 @@ Event OnOptionSelect(int a_option)
 	ForcePageReset()
 EndEvent
 
-Event OnHighlight(int a_option)
+Event OnOptionHighlight(int a_option)
 	SetInfoText("Click on the preset, it takes several seconds")
 EndEvent
 
