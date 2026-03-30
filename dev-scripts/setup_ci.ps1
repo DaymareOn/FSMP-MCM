@@ -1,7 +1,7 @@
 # setup_ci.ps1 - Prepare CI environment for FSMP-MCM build
 #
 # All script dependencies (base game, SKSE, SkyUI SDK, mod libraries) are
-# provided in-repo under Source/Scripts/Stubs/ and Source/Scripts/SkyUI_SDK/.
+# provided in-repo under Dependencies/Stubs/ and Dependencies/SkyUI-Community/
 # Only the Caprica compiler needs to be downloaded.
 
 $ErrorActionPreference = "Stop"
@@ -39,5 +39,5 @@ Write-Host "Caprica installed."
 Write-Host ""
 Write-Host "CI setup complete."
 Write-Host "  Tools:     $toolDir"
-Write-Host "  Stubs:     Source/Scripts/Stubs/ (in repo)"
-Write-Host "  SkyUI SDK: Source/Scripts/SkyUI_SDK/ (in repo)"
+Write-Host "  Stubs:     Dependencies/Stubs/ (in repo)"
+Write-Host "  SkyUI SDK: Dependencies/SkyUI-Community/ (Git Submodule)"
