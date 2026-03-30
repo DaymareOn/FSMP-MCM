@@ -1,0 +1,6 @@
+[submodule "Source/Scripts/Stubs/SkyUI-Community"]
+	path = Source/Scripts/Stubs/SkyUI-Community
+	url = https://github.com/doodlum/SkyUI-Community.git
+[submodule "Dependencies/SkyUI-Community"]
+	path = Dependencies/SkyUI-Community
+	url = https://github.com/doodlum/SkyUI-Community.git

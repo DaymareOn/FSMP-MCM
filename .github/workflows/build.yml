@@ -16,6 +16,8 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
+        with:
+          submodules: recursive
 
       - name: Setup CI Dependencies
         shell: powershell
@@ -24,15 +26,15 @@ jobs:
       - name: Compile Papyrus Scripts
         shell: powershell
         run: |
-          $flagsFile = Resolve-Path "Source/Scripts/Stubs/BaseGame/TESV_Papyrus_Flags.flg"
+          $flagsFile = Resolve-Path "Dependencies/Stubs/BaseGame/TESV_Papyrus_Flags.flg"
           $imports = @(
             (Resolve-Path "Source/Scripts"),
-            (Resolve-Path "Source/Scripts/SkyUI_SDK"),
-            (Resolve-Path "Source/Scripts/Stubs/BaseGame"),
-            (Resolve-Path "Source/Scripts/Stubs/SKSE"),
-            (Resolve-Path "Source/Scripts/Stubs/JContainers"),
-            (Resolve-Path "Source/Scripts/Stubs/PapyrusUtil"),
-            (Resolve-Path "Source/Scripts/Stubs/ConsoleUtil")
+            (Resolve-Path "Dependencies/SkyUI-Community/source/scripts"),
+            (Resolve-Path "Dependencies/Stubs/BaseGame"),
+            (Resolve-Path "Dependencies/Stubs/SKSE"),
+            (Resolve-Path "Dependencies/Stubs/JContainers"),
+            (Resolve-Path "Dependencies/Stubs/PapyrusUtil"),
+            (Resolve-Path "Dependencies/Stubs/ConsoleUtil")
           ) -join ";"
           if (-not (Test-Path "Scripts")) { New-Item -ItemType Directory -Path "Scripts" }
           Remove-Item "Scripts/*.pex" -ErrorAction SilentlyContinue

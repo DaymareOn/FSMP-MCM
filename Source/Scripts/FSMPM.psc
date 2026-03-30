@@ -16,18 +16,19 @@ String sLabelSimplification = "Simplification"
 String sLabelQuality = "Performance"
 String sLabelWind = "Wind "; WIND seems to be a papyrus keyword...
 String sLabelPresets = "Presets "; presets seems to be a lowercase papyrus keyword...
-String sLabelClickMe = "Click me!"
-String sLabelLoaded = "Loaded: "
+String sLabelClickMe
+String sLabelLoaded
+String sLastLoadedPresetName = ""
+bool bLastTagFound = true
 String[] keys
 String[] defaultValues
 int[] presetsInt
 string[] presetsFiles
 
 int startIndex = 0
-bool loadConfigDone = false; useless now from version 2
 
 int Function GetVersion()
-	Return 2
+	Return 3
 EndFunction
 
 ; #################################################################################################
@@ -46,6 +47,10 @@ Event OnConfigInit()
 EndEvent
 
 event OnVersionUpdate(int NewVersion)
+	if (NewVersion >= 3 && CurrentVersion < 3)
+		initConfig()
+		Debug.Notification("FSMP MCM updated to version 3.")
+	endif
 endEvent
 
 event OnGameReload()
@@ -87,7 +92,7 @@ Event OnPageReset(String aPage)
 			autoAdjustOptionsFlag = 1
 		endif
 		AddToggleOptionST("ToggleAutoAdjustMaxSkeletons", "Auto adjust the max number of SMP NPCs", autoAdjust)
-		AddSliderOptionST("SliderTimeFramePercentage", "Allowed percentage of frame time for SMP", JMap.getStr(configMapId, "percentageOfFrameTime", 30) as float, "{0}", autoAdjustOptionsFlag)
+		AddSliderOptionST("SliderTimeFrameBudget", "Allowed frame time budget for SMP (ms)", JMap.getStr(configMapId, "budgetMs", 3.5) as float, "{1}", autoAdjustOptionsFlag)
 		AddSliderOptionST("SliderMaxSkeletons", "Maximum SMP NPC number", JMap.getStr(configMapId, "maximumActiveSkeletons", 40) as float, "{0}", autoAdjustOptionsFlag)
 		AddSliderOptionST("SliderSampleSize", "Adjustment speed", JMap.getStr(configMapId, "sampleSize", 5) as float, "{0}", autoAdjustOptionsFlag)
 	ElseIf (aPage == sLabelQuality)
@@ -135,16 +140,18 @@ Event OnPageReset(String aPage)
 	ElseIf (aPage == sLabelPresets)
 		AddHeaderOption("Load preset")
 		presetsFiles = MiscUtil.FilesInFolder(presetFolder, "xml")
-		string sCurrentConfig = MiscUtil.ReadFromFile(configFilePath)
 		int index = 0
-		While (index < presetsFiles.Length)
+		While (index < presetsFiles.Length && index < presetsInt.Length)
 			string presetFile = presetsFiles[index]
-			string sThatConfig = MiscUtil.ReadFromFile(presetFolder + "/" + presetFile)
-			if (sThatConfig == sCurrentConfig)
-				presetsInt[index] = AddTextOption(sLabelLoaded + presetFile, sLabelClickMe, OPTION_FLAG_DISABLED)
+			if (sLastLoadedPresetName == presetFile)
+				presetsInt[index] = AddTextOption(presetFile, sLabelLoaded, OPTION_FLAG_DISABLED)
 			else
 				presetsInt[index] = AddTextOption(presetFile, sLabelClickMe, OPTION_FLAG_NONE)
 			endif
+			index += 1
+		EndWhile
+		While (index < presetsInt.Length)
+			presetsInt[index] = 0
 			index += 1
 		EndWhile
 	Else
@@ -153,18 +160,25 @@ Event OnPageReset(String aPage)
 EndEvent
 
 Event OnOptionSelect(int a_option)
-	int presetFileIndex = 0
+	int presetFileIndex = -1
 	int index = 0
-	While (index < presetsInt.Length)
-		if presetsInt[index] == a_option; found
+	While (index < presetsFiles.Length && index < presetsInt.Length)
+		if (presetsInt[index] != 0 && presetsInt[index] == a_option) ; found
 			presetFileIndex = index
 		endif
-		; Can it happen that we don't find it?...
 		index += 1
 	EndWhile
-	loadConfigFile(presetFolder + "/" + presetsFiles[presetFileIndex])
-	storeConfigAndSmpReset()
-	ForcePageReset()
+	
+	if (presetFileIndex != -1)
+		string presetName = presetsFiles[presetFileIndex]
+		if (loadConfigFile(presetFolder + "/" + presetName))
+			sLastLoadedPresetName = presetName
+		else
+			sLastLoadedPresetName = ""
+		endif
+		storeConfigAndSmpReset()
+		ForcePageReset()
+	endif
 EndEvent
 
 Event OnOptionHighlight(int a_option)
@@ -179,6 +193,16 @@ EndEvent
 
 function initConfig()
 	ModName = "FSMP"
+
+	; Initializing here to ensure that the strings are updated on existing saves
+	sLabelCommands = "Commands"
+	sLabelLogs = "Logs"
+	sLabelSimplification = "Simplification"
+	sLabelQuality = "Performance"
+	sLabelWind = "Wind "; WIND seems to be a papyrus keyword...
+	sLabelPresets = "Presets "; presets seems to be a lowercase papyrus keyword...
+	sLabelClickMe = "Click me!"
+	sLabelLoaded = "Loaded!"
 
 	Pages = new String[8]
 	Pages[0] = sLabelSimplification
@@ -202,7 +226,7 @@ function initConfig()
 	keys[8] = "minCullingDistance"
 	keys[9] = "autoAdjustMaxSkeletons"
 	keys[10] = "maximumActiveSkeletons"
-	keys[11] = "percentageOfFrameTime"
+	keys[11] = "budgetMs"
 	keys[12] = "sampleSize"
 	keys[13] = "disable1stPersonViewPhysics"
 	keys[14] = "numIterations"; second serie
@@ -227,7 +251,7 @@ function initConfig()
 	defaultValues[8] = "300"
 	defaultValues[9] = "true"
 	defaultValues[10] = "10"
-	defaultValues[11] = "30"
+	defaultValues[11] = "3.5"
 	defaultValues[12] = "5"
 	defaultValues[13] = "false"
 	defaultValues[14] = "10"; second serie
@@ -257,16 +281,25 @@ Function initMap()
 EndFunction
 
 ; Initialize the map with config file values
-function loadConfigFile(string path)
+bool function loadConfigFile(string path)
 	startIndex = 0
 	string sConfig = MiscUtil.ReadFromFile(path)
-	int index = 0
+	if (sConfig == "")
+		return false
+	endif
 
+	int index = 0
+	bool allFound = true
 	While (index < keys.Length)
-		string value = getTagValue(keys[index], sConfig, true)
-		JMap.setStr(configMapId, keys[index], value)
+		string tag = keys[index]
+		string value = getTagValue(tag, sConfig, true)
+		if (!bLastTagFound)
+			allFound = false
+		endif
+		JMap.setStr(configMapId, tag, value)
 		index += 1
 	EndWhile
+	return allFound
 endfunction
 
 Function toggleTagWithoutStoringConfig(string tag, string toggle)
@@ -278,6 +311,7 @@ Function toggleTagWithoutStoringConfig(string tag, string toggle)
 		sNewValue = "true"
 	endif
 	JMap.setStr(configMapId, tag, sNewValue)
+	sLastLoadedPresetName = ""
 EndFunction
 
 Function toggleTag(string tag, string toggle)
@@ -295,12 +329,14 @@ endfunction
 function setIntTag(string tag, int value)
 	SetSliderOptionValueST(value as float)
 	JMap.setStr(configMapId, tag, value)
+	sLastLoadedPresetName = ""
 	storeConfigAndSmpReset()
 endfunction
 
 function setFloatTag(string tag, float value, string formatSTring = "{0}")
 	SetSliderOptionValueST(value, formatSTring)
 	JMap.setStr(configMapId, tag, value)
+	sLastLoadedPresetName = ""
 	storeConfigAndSmpReset()
 endfunction
 
@@ -366,8 +402,10 @@ string Function getTagValue(string tag, string sConfig, bool sequential = false)
 	int tagLength = StringUtil.GetLength(tag)
 	int startTagIndex = findStringInString(startTag, sConfig, startIndex)
 	if (startTagIndex == -1); not found
+		bLastTagFound = false
 		return tagDefaultValue(tag)
 	endif
+	bLastTagFound = true
 	int valueIndex = startTagIndex + tagLength + 2
 	int endTagIndex = findStringInString(endTag, sConfig, valueIndex)
 	if sequential
@@ -495,17 +533,17 @@ State SliderMaxSkeletons
 	EndEvent
 EndState
 
-State SliderTimeFramePercentage
+State SliderTimeFrameBudget
 	event OnSliderOpenST()
-		setOpenedSlider(1,1000,1,"percentageOfFrameTime", 30)
+		setOpenedSlider(0.1,16.0,0.1,"budgetMs", 3.5)
 	endEvent
 	
 	event OnSliderAcceptST(float a_value)
-		setIntTag("percentageOfFrameTime", a_value as int)
+		setFloatTag("budgetMs", a_value, "{1}")
 	endEvent
 
 	Event OnHighlightST()
-		SetInfoText("Allowed CPU time for SMP calculus each frame:\na percentage of 16 ms -- Example: 30% = 5ms each frame")
+		SetInfoText("Allowed CPU time for SMP calculus each frame in milliseconds.")
 	EndEvent
 EndState
 
