@@ -31,6 +31,7 @@
         <ZipFile Name="@ModName" RootDir="." Compression="deflate">
             <Include>FSMPM - The FSMP MCM.esp</Include>
             <Match In="Scripts">*.pex</Match>
+            <Match In="Source\Scripts">*.psc</Match>
             <Match In="SKSE\Plugins\hdtSkinnedMeshConfigs">configs.xml</Match>
             <Match In="SKSE\Plugins\hdtSkinnedMeshConfigs\configsPresets">*.xml</Match>
         </ZipFile>

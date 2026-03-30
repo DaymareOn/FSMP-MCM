@@ -69,8 +69,7 @@ jobs:
           Copy-Item Scripts/*.pex "$buildDir/Scripts/"
           Copy-Item SKSE/Plugins/hdtSkinnedMeshConfigs/configs.xml "$buildDir/SKSE/Plugins/hdtSkinnedMeshConfigs/"
           Copy-Item SKSE/Plugins/hdtSkinnedMeshConfigs/configsPresets/*.xml "$buildDir/SKSE/Plugins/hdtSkinnedMeshConfigs/configsPresets/"
-          Copy-Item Source/Scripts/FSMPM.psc "$buildDir/Source/Scripts/"
-          Copy-Item Source/Scripts/FSMPMPlayerScript.psc "$buildDir/Source/Scripts/"
+          Copy-Item Source/Scripts/*.psc "$buildDir/Source/Scripts/"
 
           Compress-Archive -Path "$buildDir/*" -DestinationPath "Build/FSMP-MCM.zip" -Force
           Write-Host "Distributable archive created: Build/FSMP-MCM.zip"
