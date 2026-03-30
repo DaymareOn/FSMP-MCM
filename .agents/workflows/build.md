@@ -9,7 +9,7 @@ Compiles the Papyrus source scripts (`.psc`) into compiled Papyrus executables (
 ## Prerequisites
 
 - **Caprica Compiler**: `Caprica/Caprica.exe` must be present. 
-  - If missing, download it from [Orvid/Caprica Releases](https://github.com/Orvid/Caprica/releases).
+  - If missing, download version 0.3.0a from [KrisV-777/Caprica Releases](https://github.com/KrisV-777/Caprica/releases/tag/0.3.0a).
 - **PowerShell**: Used to run the build script.
 
 ## Build Command

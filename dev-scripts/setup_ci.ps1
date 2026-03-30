@@ -10,7 +10,7 @@ $toolDir = Join-Path $rootDir "ci_tools"
 
 if (!(Test-Path $toolDir)) { New-Item -ItemType Directory -Path $toolDir }
 
-function Download-And-Extract {
+function Invoke-DownloadAndExtract {
     param (
         [string]$Url,
         [string]$Name,
@@ -30,7 +30,7 @@ function Download-And-Extract {
 
 # ── Download Caprica compiler ─────────────────────────────────────────────────
 
-$capricaPath = Download-And-Extract "https://github.com/KrisV-777/Caprica/releases/download/0.3.0a/Caprica.zip" "Caprica"
+$capricaPath = Invoke-DownloadAndExtract "https://github.com/KrisV-777/Caprica/releases/download/0.3.0a/Caprica.zip" "Caprica"
 Get-ChildItem -Path $capricaPath -Filter "Caprica.exe" -Recurse | Select-Object -First 1 | Copy-Item -Destination (Join-Path $toolDir "Caprica.exe")
 Write-Host "Caprica installed."
 
