@@ -2,12 +2,12 @@ name: Build FSMP MCM
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
     tags:
       - 'v*.*.*'
       - 'v*.*'
   pull_request:
-    branches: [ main ]
+    branches: [main]
   workflow_dispatch:
 
 permissions:
