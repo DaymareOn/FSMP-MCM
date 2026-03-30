@@ -126,9 +126,11 @@ try {
     exit 1
 }
 
-# Ensure output directory exists
-if (-not (Test-Path $OutputDir)) {
-    New-Item -ItemType Directory -Path $OutputDir -Force
+# Clean stale binaries and ensure output directory exists
+if (Test-Path $OutputDir) {
+    Remove-Item (Join-Path $OutputDir "*.pex") -Force -ErrorAction SilentlyContinue
+} else {
+    New-Item -ItemType Directory -Path $OutputDir -Force | Out-Null
 }
 
 $SourceFiles = Get-ChildItem "Source/Scripts/*.psc" -Exclude "FSMPM_AutoBindings.psc"
