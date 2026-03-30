@@ -3,4 +3,4 @@ Scriptname GlobalVariable extends Form Hidden
 
 Function SetValue(float afNewValue) native
 float Function GetValue() native
-Function Mod(float afHowMuch) native
+float Function Mod(float afHowMuch) native
