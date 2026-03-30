@@ -5,7 +5,7 @@
 # Only the Caprica compiler needs to be downloaded.
 
 $ErrorActionPreference = "Stop"
-$rootDir = Get-Location
+$rootDir = Split-Path -Path $PSScriptRoot -Parent
 $toolDir = Join-Path $rootDir "ci_tools"
 
 if (!(Test-Path $toolDir)) { New-Item -ItemType Directory -Path $toolDir }
