@@ -18,7 +18,11 @@ String sLabelWind = "Wind "; WIND seems to be a papyrus keyword...
 String sLabelPresets = "Presets "; presets seems to be a lowercase papyrus keyword...
 String sLabelClickMe
 String sLabelLoaded
+<<<<<<< HEAD
 String sLastLoadedPresetName = "Default.xml"
+=======
+String sLastLoadedPresetName = ""
+>>>>>>> origin/main
 bool bLastTagFound = true
 String[] keys
 String[] defaultValues

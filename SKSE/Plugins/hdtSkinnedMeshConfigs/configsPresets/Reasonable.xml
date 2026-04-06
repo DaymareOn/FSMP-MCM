@@ -9,21 +9,19 @@
 		<unclampedResets>true</unclampedResets>
 		<unclampedResetAngle>130.0</unclampedResetAngle>
 		<useRealTime>true</useRealTime>
-		<minCullingDistance>300</minCullingDistance>
+		<minCullingDistance>500</minCullingDistance>
 		<autoAdjustMaxSkeletons>true</autoAdjustMaxSkeletons>
 		<maximumActiveSkeletons>10</maximumActiveSkeletons>
 		<budgetMs>4</budgetMs>
 		<sampleSize>5</sampleSize>
 		<disable1stPersonViewPhysics>false</disable1stPersonViewPhysics>
-		<enableCuda>true</enableCuda>
 	</smp>
 	<solver>
-		<numIterations>10</numIterations>
-		<groupIterations>4</groupIterations>
+		<numIterations>16</numIterations>
 		<groupEnableMLCP>false</groupEnableMLCP>
 		<erp>0.2</erp>
 		<min-fps>60</min-fps>
-		<maxSubSteps>2</maxSubSteps>
+		<maxSubSteps>4</maxSubSteps>
 	</solver>
 	<wind>
 		<enabled>true</enabled>
