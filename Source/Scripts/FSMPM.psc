@@ -18,7 +18,7 @@ String sLabelWind = "Wind "; WIND seems to be a papyrus keyword...
 String sLabelPresets = "Presets "; presets seems to be a lowercase papyrus keyword...
 String sLabelClickMe
 String sLabelLoaded
-String sLastLoadedPresetName = ""
+String sLastLoadedPresetName = "Default.xml"
 bool bLastTagFound = true
 String[] keys
 String[] defaultValues
@@ -91,9 +91,9 @@ Event OnPageReset(String aPage)
 		if (!autoAdjust)
 			autoAdjustOptionsFlag = 1
 		endif
+		AddSliderOptionST("SliderMaxSkeletons", "Maximum SMP NPC number", JMap.getStr(configMapId, "maximumActiveSkeletons", 40) as float, "{0}")
 		AddToggleOptionST("ToggleAutoAdjustMaxSkeletons", "Auto adjust the max number of SMP NPCs", autoAdjust)
 		AddSliderOptionST("SliderTimeFrameBudget", "Allowed frame time budget for SMP (ms)", JMap.getStr(configMapId, "budgetMs", 3.5) as float, "{1}", autoAdjustOptionsFlag)
-		AddSliderOptionST("SliderMaxSkeletons", "Maximum SMP NPC number", JMap.getStr(configMapId, "maximumActiveSkeletons", 40) as float, "{0}", autoAdjustOptionsFlag)
 		AddSliderOptionST("SliderSampleSize", "Adjustment speed", JMap.getStr(configMapId, "sampleSize", 5) as float, "{0}", autoAdjustOptionsFlag)
 	ElseIf (aPage == sLabelQuality)
 		AddHeaderOption("Simulation quality")
