@@ -18,7 +18,7 @@ String sLabelWind = "Wind "; WIND seems to be a papyrus keyword...
 String sLabelPresets = "Presets "; presets seems to be a lowercase papyrus keyword...
 String sLabelClickMe
 String sLabelLoaded
-String sLastLoadedPresetName = "Default.xml"
+String sLastLoadedPresetName = ""
 bool bLastTagFound = true
 String[] keys
 String[] defaultValues
@@ -41,7 +41,16 @@ Event OnConfigInit()
 	initConfig()
 	initMap()
 	loadConfigFile(configFilePath)
-	
+
+	bool currentPresetMatches = sLastLoadedPresetName != "" && configMatchesPreset(presetFolder + "/" + sLastLoadedPresetName)
+	if (!currentPresetMatches)
+		if (configMatchesPreset(presetFolder + "/Default.xml"))
+			sLastLoadedPresetName = "Default.xml"
+		else
+			sLastLoadedPresetName = ""
+		endif
+	endif
+
 	; This one is to sanitize the config file.
 	storeConfigAndSmpReset()
 EndEvent
@@ -300,6 +309,34 @@ bool function loadConfigFile(string path)
 		index += 1
 	EndWhile
 	return allFound
+endfunction
+
+bool function configMatchesPreset(string presetPath)
+	string sPreset = MiscUtil.ReadFromFile(presetPath)
+	if (sPreset == "")
+		return false
+	endif
+	int savedStartIndex = startIndex
+	bool savedLastTagFound = bLastTagFound
+	startIndex = 0
+	int index = 0
+	bool matches = true
+	While (index < keys.Length && matches)
+		string tag = keys[index]
+		string presetValue = getTagValue(tag, sPreset, true)
+		if (!bLastTagFound)
+			matches = false
+		else
+			string configValue = JMap.getStr(configMapId, tag, "")
+			if (configValue != presetValue)
+				matches = false
+			endif
+		endif
+		index += 1
+	EndWhile
+	startIndex = savedStartIndex
+	bLastTagFound = savedLastTagFound
+	return matches
 endfunction
 
 Function toggleTagWithoutStoringConfig(string tag, string toggle)
