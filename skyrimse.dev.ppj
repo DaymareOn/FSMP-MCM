@@ -1,0 +1,45 @@
+<?xml version='1.0'?>
+<!-- Local Development Project File - Template for GitHub -->
+<PapyrusProject xmlns="PapyrusProject.xsd" 
+    Flags="C:\Games\Skyrim Special Edition\Data\Source\Scripts\TESV_Papyrus_Flags.flg" 
+    Game="sse"
+    Anonymize="true" 
+    Output="Scripts" 
+    Optimize="false" 
+    Release="false" 
+    Zip="false"
+    Package="false"
+    Final="false">
+    <Variables>
+        <!-- Set the name of your mod: -->
+        <Variable Name="ModName" Value="FSMP MCM" />
+        <!-- Set your modding folder: -->
+        <Variable Name="ModWorkingFolder" Value="C:\Dev\SkyrimMods" />
+    </Variables>
+    <Imports>
+        <!-- Project Specific -->
+        <Import>./Source/Scripts</Import>
+        <Import>./Source/Scripts/SkyUI_SDK</Import>
+
+        <!-- Base Game & Script Extender - ADJUST THESE PATHS -->
+        <Import>C:\Games\Skyrim Special Edition\Data\Source\Scripts</Import>
+        <Import>C:\Dev\SkyrimMods\SKSE64\Data\Scripts\Source</Import>
+        
+        <!-- Scripting Utilities - ADJUST THESE PATHS -->
+        <Import>C:\Dev\SkyrimMods\PapyrusUtil\Source\Scripts</Import>
+        <Import>C:\Dev\SkyrimMods\ConsoleUtilSSE\Scripts\Source</Import>
+        <Import>C:\Dev\SkyrimMods\JContainers\scripts\source</Import>
+    </Imports>
+    <Folders>
+        <!-- Relative path to folder containing .psc Papyrus source code files for this project -->
+        <Folder>./Source/Scripts</Folder>
+    </Folders>
+    <!-- Machine-specific deployment events - UNCOMMENT AND ADJUST PATHS -->
+    <!--
+    <PostBuildEvent Description="Deploy to local dev instances" UseInBuild="true">
+        <Command>xcopy "Scripts" "C:\Your\Game\Data\Scripts\" /E/Y</Command>
+        <Command>xcopy "SKSE" "C:\Your\Game\Data\SKSE\" /E/Y</Command>
+        <Command>xcopy "Source" "C:\Your\Game\Data\Source\" /E/Y</Command>
+    </PostBuildEvent>
+    -->
+</PapyrusProject>
