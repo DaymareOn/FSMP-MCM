@@ -26,6 +26,8 @@ int[] presetsInt
 string[] presetsFiles
 
 int startIndex = 0
+bool bDependenciesOK = false
+string sMissingDependencies = ""
 
 int Function GetVersion()
 	Return 302
@@ -39,6 +41,11 @@ EndFunction
 
 Event OnConfigInit()
 	initConfig()
+	bDependenciesOK = checkDependencies()
+	if (!bDependenciesOK)
+		Debug.Notification("FSMP MCM: missing " + sMissingDependencies + ". Menu disabled.")
+		return
+	endif
 	initMap()
 	loadConfigFile(configFilePath)
 
@@ -55,6 +62,22 @@ Event OnConfigInit()
 	storeConfigAndSmpReset()
 EndEvent
 
+bool Function checkDependencies()
+	sMissingDependencies = ""
+	int testId = JMap.object()
+	if (testId == 0)
+		sMissingDependencies = "JContainers"
+	endif
+	string[] testArr = PapyrusUtil.StringArray(1)
+	if (testArr.Length == 0)
+		if (sMissingDependencies != "")
+			sMissingDependencies += " and "
+		endif
+		sMissingDependencies += "PapyrusUtil SE"
+	endif
+	return sMissingDependencies == ""
+EndFunction
+
 event OnVersionUpdate(int NewVersion)
 	if (NewVersion >= 302 && CurrentVersion < 302)
 		initConfig()
@@ -70,6 +93,14 @@ event OnGameReload()
 endEvent
 
 Event OnPageReset(String aPage)
+	if (!bDependenciesOK)
+		UnloadCustomContent()
+		SetTitleText("FSMP: Missing Dependencies")
+		AddHeaderOption("Required dependencies not detected")
+		AddTextOption("Missing: " + sMissingDependencies, "", OPTION_FLAG_DISABLED)
+		AddTextOption("Install and restart Skyrim", "", OPTION_FLAG_DISABLED)
+		return
+	endif
 	if (aPage == "")
 		LoadCustomContent("FSMP/Logo.dds")
 		return
