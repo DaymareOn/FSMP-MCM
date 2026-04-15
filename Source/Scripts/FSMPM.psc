@@ -28,7 +28,7 @@ string[] presetsFiles
 int startIndex = 0
 
 int Function GetVersion()
-	Return 3
+	Return 302
 EndFunction
 
 ; #################################################################################################
@@ -56,9 +56,10 @@ Event OnConfigInit()
 EndEvent
 
 event OnVersionUpdate(int NewVersion)
-	if (NewVersion >= 3 && CurrentVersion < 3)
+	if (NewVersion >= 302 && CurrentVersion < 302)
 		initConfig()
-		Debug.Notification("FSMP MCM updated to version 3.")
+		sLastLoadedPresetName = ""
+		Debug.Notification("FSMP MCM updated to version 3.0.2.")
 	endif
 endEvent
 
@@ -69,8 +70,12 @@ event OnGameReload()
 endEvent
 
 Event OnPageReset(String aPage)
+	if (aPage == "")
+		LoadCustomContent("FSMP/Logo.dds")
+		return
+	endif
 	UnloadCustomContent()
-	
+
 	SetTitleText(aPage)
 	SetCursorFillMode(TOP_TO_BOTTOM)
 	SetCursorPosition(0)
@@ -787,6 +792,16 @@ State ToggleWind
 	
 	Event OnHighlightST()
 		SetInfoText("Check to enable FSMP-native wind")
+	EndEvent
+EndState
+
+State WikiLink
+	Event OnSelectST()
+		Debug.MessageBox("Faster Skinned Mesh Physics\nWiki & Nexus Page:\nhttps://www.nexusmods.com/skyrimspecialedition/mods/57339")
+	EndEvent
+
+	Event OnHighlightST()
+		SetInfoText("Click to show the Nexus page URL")
 	EndEvent
 EndState
 
