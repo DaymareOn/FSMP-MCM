@@ -1,0 +1,11 @@
+# Build artifacts
+Build/
+
+# Local configuration
+Caprica/Caprica.exe
+skyrimse.dev.ppj
+
+
+# OS generated files
+.DS_Store
+Thumbs.db
