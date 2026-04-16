@@ -16,6 +16,7 @@ String sLabelSimplification = "Simplification"
 String sLabelQuality = "Performance"
 String sLabelWind = "Wind "; WIND seems to be a papyrus keyword...
 String sLabelPresets = "Presets "; presets seems to be a lowercase papyrus keyword...
+String sLabelHelp = "Help"
 String sLabelClickMe
 String sLabelLoaded
 String sLastLoadedPresetName = ""
@@ -199,6 +200,10 @@ Event OnPageReset(String aPage)
 			presetsInt[index] = 0
 			index += 1
 		EndWhile
+	ElseIf (aPage == sLabelHelp)
+		AddHeaderOption("Documentation")
+		AddTextOptionST("WikiLink", "Wiki", "Click me!")
+		AddTextOption("Join our Discord!", "", OPTION_FLAG_DISABLED)
 	Else
 		SetTitleText("Faster Skinned Mesh Physics")
 	EndIf
@@ -246,10 +251,12 @@ function initConfig()
 	sLabelQuality = "Performance"
 	sLabelWind = "Wind "; WIND seems to be a papyrus keyword...
 	sLabelPresets = "Presets "; presets seems to be a lowercase papyrus keyword...
+	sLabelHelp = "Help"
 	sLabelClickMe = "Click me!"
 	sLabelLoaded = "Loaded!"
 
-	Pages = new String[8]
+
+	Pages = new String[9]
 	Pages[0] = sLabelSimplification
 	Pages[1] = sLabelQuality
 	Pages[2] = sLabelWind
@@ -258,6 +265,7 @@ function initConfig()
 	Pages[5] = sLabelCommands
 	Pages[6] = ""
 	Pages[7] = sLabelPresets
+	Pages[8] = sLabelHelp
 
 	keys = new String[23]
 	keys[0] = "logLevel"; first serie
@@ -828,13 +836,14 @@ EndState
 
 State WikiLink
 	Event OnSelectST()
-		Debug.MessageBox("Faster Skinned Mesh Physics\nWiki & Nexus Page:\nhttps://www.nexusmods.com/skyrimspecialedition/mods/57339")
+		Debug.MessageBox("Faster Skinned Mesh Physics\nWiki:\nhttps://github.com/DaymareOn/hdtSMP64/wiki")
 	EndEvent
 
 	Event OnHighlightST()
-		SetInfoText("Click to show the Nexus page URL")
+		SetInfoText("Click to show the Wiki URL")
 	EndEvent
 EndState
+
 
 State ToggleSMP
 	Event OnSelectST()
