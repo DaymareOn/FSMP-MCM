@@ -18,7 +18,7 @@ String sLabelWind = "Wind "; WIND seems to be a papyrus keyword...
 String sLabelPresets = "Presets "; presets seems to be a lowercase papyrus keyword...
 String sLabelClickMe
 String sLabelLoaded
-String sLastLoadedPresetName = "Default.xml"
+String sLastLoadedPresetName = ""
 bool bLastTagFound = true
 String[] keys
 String[] defaultValues
@@ -26,9 +26,11 @@ int[] presetsInt
 string[] presetsFiles
 
 int startIndex = 0
+bool bDependenciesOK = false
+string sMissingDependencies = ""
 
 int Function GetVersion()
-	Return 3
+	Return 302
 EndFunction
 
 ; #################################################################################################
@@ -39,17 +41,48 @@ EndFunction
 
 Event OnConfigInit()
 	initConfig()
+	bDependenciesOK = checkDependencies()
+	if (!bDependenciesOK)
+		Debug.Notification("FSMP MCM: missing " + sMissingDependencies + ". Menu disabled.")
+		return
+	endif
 	initMap()
 	loadConfigFile(configFilePath)
-	
+
+	bool currentPresetMatches = sLastLoadedPresetName != "" && configMatchesPreset(presetFolder + "/" + sLastLoadedPresetName)
+	if (!currentPresetMatches)
+		if (configMatchesPreset(presetFolder + "/Default.xml"))
+			sLastLoadedPresetName = "Default.xml"
+		else
+			sLastLoadedPresetName = ""
+		endif
+	endif
+
 	; This one is to sanitize the config file.
 	storeConfigAndSmpReset()
 EndEvent
 
+bool Function checkDependencies()
+	sMissingDependencies = ""
+	int testId = JMap.object()
+	if (testId == 0)
+		sMissingDependencies = "JContainers"
+	endif
+	string[] testArr = PapyrusUtil.StringArray(1)
+	if (testArr.Length == 0)
+		if (sMissingDependencies != "")
+			sMissingDependencies += " and "
+		endif
+		sMissingDependencies += "PapyrusUtil SE"
+	endif
+	return sMissingDependencies == ""
+EndFunction
+
 event OnVersionUpdate(int NewVersion)
-	if (NewVersion >= 3 && CurrentVersion < 3)
+	if (NewVersion >= 302 && CurrentVersion < 302)
 		initConfig()
-		Debug.Notification("FSMP MCM updated to version 3.")
+		sLastLoadedPresetName = ""
+		Debug.Notification("FSMP MCM updated to version 3.0.2.")
 	endif
 endEvent
 
@@ -60,8 +93,20 @@ event OnGameReload()
 endEvent
 
 Event OnPageReset(String aPage)
+	if (!bDependenciesOK)
+		UnloadCustomContent()
+		SetTitleText("FSMP: Missing Dependencies")
+		AddHeaderOption("Required dependencies not detected")
+		AddTextOption("Missing: " + sMissingDependencies, "", OPTION_FLAG_DISABLED)
+		AddTextOption("Install and restart Skyrim", "", OPTION_FLAG_DISABLED)
+		return
+	endif
+	if (aPage == "")
+		LoadCustomContent("FSMP/Logo.dds")
+		return
+	endif
 	UnloadCustomContent()
-	
+
 	SetTitleText(aPage)
 	SetCursorFillMode(TOP_TO_BOTTOM)
 	SetCursorPosition(0)
@@ -204,6 +249,7 @@ function initConfig()
 	sLabelClickMe = "Click me!"
 	sLabelLoaded = "Loaded!"
 
+
 	Pages = new String[8]
 	Pages[0] = sLabelSimplification
 	Pages[1] = sLabelQuality
@@ -300,6 +346,34 @@ bool function loadConfigFile(string path)
 		index += 1
 	EndWhile
 	return allFound
+endfunction
+
+bool function configMatchesPreset(string presetPath)
+	string sPreset = MiscUtil.ReadFromFile(presetPath)
+	if (sPreset == "")
+		return false
+	endif
+	int savedStartIndex = startIndex
+	bool savedLastTagFound = bLastTagFound
+	startIndex = 0
+	int index = 0
+	bool matches = true
+	While (index < keys.Length && matches)
+		string tag = keys[index]
+		string presetValue = getTagValue(tag, sPreset, true)
+		if (!bLastTagFound)
+			matches = false
+		else
+			string configValue = JMap.getStr(configMapId, tag, "")
+			if (configValue != presetValue)
+				matches = false
+			endif
+		endif
+		index += 1
+	EndWhile
+	startIndex = savedStartIndex
+	bLastTagFound = savedLastTagFound
+	return matches
 endfunction
 
 Function toggleTagWithoutStoringConfig(string tag, string toggle)
