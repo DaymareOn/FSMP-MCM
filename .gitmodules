@@ -1,0 +1,3 @@
+[submodule "Dependencies/SkyUI-Community"]
+	path = Dependencies/SkyUI-Community
+	url = https://github.com/doodlum/SkyUI-Community.git
