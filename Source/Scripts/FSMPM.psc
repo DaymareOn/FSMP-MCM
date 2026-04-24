@@ -338,7 +338,7 @@ bool function loadConfigFile(string path)
 	bool allFound = true
 	While (index < keys.Length)
 		string tag = keys[index]
-		string value = getTagValue(tag, sConfig, true)
+		string value = getTagValue(tag, sConfig, true, true)
 		if (!bLastTagFound)
 			allFound = false
 		endif
@@ -360,7 +360,7 @@ bool function configMatchesPreset(string presetPath)
 	bool matches = true
 	While (index < keys.Length && matches)
 		string tag = keys[index]
-		string presetValue = getTagValue(tag, sPreset, true)
+		string presetValue = getTagValue(tag, sPreset, true, false)
 		if (!bLastTagFound)
 			matches = false
 		else
@@ -470,14 +470,14 @@ string Function entaggedValue(string tag, string value)
 	endif
 EndFunction
 
-string Function getTagValue(string tag, string sConfig, bool sequential = false)
+string Function getTagValue(string tag, string sConfig, bool sequential = false, bool warn = false)
 	string startTag = "<" + tag + ">"
 	string endTag = "</" + tag + ">"
 	int tagLength = StringUtil.GetLength(tag)
 	int startTagIndex = findStringInString(startTag, sConfig, startIndex)
 	if (startTagIndex == -1); not found
 		bLastTagFound = false
-		return tagDefaultValue(tag)
+		return tagDefaultValue(tag, warn)
 	endif
 	bLastTagFound = true
 	int valueIndex = startTagIndex + tagLength + 2
@@ -489,13 +489,15 @@ string Function getTagValue(string tag, string sConfig, bool sequential = false)
 EndFunction
 
 ; This function will be called rarely, so a loop is okay
-string Function tagDefaultValue(string tag)
+string Function tagDefaultValue(string tag, bool warn = false)
 	; TODO use this function in the menu too; will need to use a map rather than a loop
 	int i = 0
 	while (i < keys.Length)
 		if (keys[i] == tag)
 			string defaultValue = defaultValues[i]
-			debug.MessageBox("This tag isn't set in the loading file: " + tag + "\nWe set it with the default value: " + defaultValue + "\nTo see the preset as loaded, you'll need to update it.")
+			if (warn)
+				Debug.Notification("FSMP MCM: tag " + tag + " missing from configs.xml, using default " + defaultValue)
+			endif
 			return defaultValue
 		endif
 		i = i+1
