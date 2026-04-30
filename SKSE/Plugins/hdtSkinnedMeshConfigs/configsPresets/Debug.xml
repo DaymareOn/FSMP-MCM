@@ -18,7 +18,6 @@
 	</smp>
 	<solver>
 		<numIterations>20</numIterations>
-		<groupEnableMLCP>false</groupEnableMLCP>
 		<erp>0.2</erp>
 		<min-fps>60</min-fps>
 		<maxSubSteps>3</maxSubSteps>

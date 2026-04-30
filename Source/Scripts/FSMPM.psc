@@ -143,7 +143,6 @@ Event OnPageReset(String aPage)
 	ElseIf (aPage == sLabelQuality)
 		AddHeaderOption("Simulation quality")
 		AddSliderOptionST("SliderNumIterations", "Simulation quality", JMap.getStr(configMapId, "numIterations", 16) as float)
-		AddToggleOptionST("ToggleGroupMLCP", "Enable a better simulation", JMap.getStr(configMapId, "groupEnableMLCP", "") == "true")
 		AddSliderOptionST("SliderERP", "ERP ", JMap.getStr(configMapId, "erp", 0.2) as float, "{2}")
 		AddEmptyOption()
 		AddHeaderOption("Simulation frequency and slowdowns")
@@ -276,7 +275,7 @@ function initConfig()
 	keys[12] = "sampleSize"
 	keys[13] = "disable1stPersonViewPhysics"
 	keys[14] = "numIterations"; second serie
-	keys[15] = "groupEnableMLCP"
+	keys[15] = "groupEnableMLCP"; unused by FSMP...
 	keys[16] = "erp"
 	keys[17] = "min-fps"
 	keys[18] = "maxSubSteps"
@@ -301,7 +300,7 @@ function initConfig()
 	defaultValues[12] = "5"
 	defaultValues[13] = "false"
 	defaultValues[14] = "10"; second serie
-	defaultValues[15] = "false"
+	defaultValues[15] = "false"; unused by FSMP...
 	defaultValues[16] = "0.2"
 	defaultValues[17] = "60"
 	defaultValues[18] = "2"
@@ -805,16 +804,6 @@ State Toggle1stPersonViewPhysics
 	
 	Event OnHighlightST()
 		SetInfoText("Check to avoid calculating your character physics when in 1st person view")
-	EndEvent
-EndState
-
-State ToggleGroupMLCP
-	Event OnSelectST()
-		toggleTag("groupEnableMLCP", "ToggleGroupMLCP")
-	EndEvent
-	
-	Event OnHighlightST()
-		SetInfoText("Check to enable a better simulation (more CPU intensive)")
 	EndEvent
 EndState
 

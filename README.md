@@ -15,7 +15,7 @@ Instead of direct memory injection, this MCM dynamically recompiles and overwrit
 Key features broken down by menu pages:
 - **Master Switch & Commands:** Easily toggle SMP globally, or trigger debug console commands like `smp list`, `smp detail`, and `smp dumptree` without manually typing them.
 - **Simplification (Culling):** Save performance by disabling 1st-person physics, turning off SMP hair when wigs are equipped, or auto-adjusting the maximum active SMP skeletons based on allowed frame time.
-- **Simulation Quality:** Dial in physics precision by tweaking iterations, substeps, ERP, and MLCP toggles. Includes rotation limits to prevent physics explosions on sharp turns.
+- **Simulation Quality:** Dial in physics precision by tweaking iterations, substeps and ERP toggles. Includes rotation limits to prevent physics explosions on sharp turns.
 - **Wind Parameters:** Enable and manipulate FSMP-native wind by setting wind strength scales and establishing distance cutoffs for wind calculation.
 - **Logging & Presets:** Quickly adjust the hdtSMP64 log level (Fatal to Debug) or swap between saved XML presets in-game.
 
