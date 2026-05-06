@@ -187,17 +187,12 @@ Event OnPageReset(String aPage)
 			validationOptionsFlag = OPTION_FLAG_DISABLED
 		endif
 		AddToggleOptionST("ToggleValidationEnabled", "Run FSMP validator at startup", validationEnabled)
-		AddToggleOptionST("ToggleReportFileEnabled", "Write validation report file", JMap.getStr(configMapId, "report-file-enabled", "") == "true", validationOptionsFlag)
 		AddSliderOptionST("SliderWarnTriangleCount", "Triangle count warning threshold", JMap.getStr(configMapId, "warn-triangle-count", "10000") as float, "{0}", validationOptionsFlag)
 		AddEmptyOption()
 		SetCursorPosition(1)
 		AddHeaderOption("Output folder")
 		string outputDir = JMap.getStr(configMapId, "output-dir", "")
-		if (outputDir == "")
-			outputDir = "(not set)"
-		endif
-		AddTextOption("Improved files output folder", outputDir, OPTION_FLAG_DISABLED)
-		AddTextOption("", "Edit configs.xml to change", OPTION_FLAG_DISABLED)
+		AddInputOptionST("InputOutputDir", "Improved files output folder", outputDir, validationOptionsFlag)
 	ElseIf (aPage == sLabelLogs)
 		AddSliderOptionST("SliderLog", "Choose your log level", JMap.getStr(configMapId, "logLevel", 0) as float)
 	ElseIf (aPage == sLabelPresets)
@@ -347,7 +342,6 @@ Function initMap()
 
 	; Validation settings — separate JMap keys to avoid collision with wind's "enabled"
 	JMap.setStr(configMapId, "validationEnabled", "true")
-	JMap.setStr(configMapId, "report-file-enabled", "true")
 	JMap.setStr(configMapId, "warn-triangle-count", "10000")
 	JMap.setStr(configMapId, "output-dir", "")
 EndFunction
@@ -389,10 +383,6 @@ function loadValidationSection(string sConfig)
 	string val = getTagValue("enabled", sConfig, true, false)
 	if (bLastTagFound)
 		JMap.setStr(configMapId, "validationEnabled", val)
-	endif
-	val = getTagValue("report-file-enabled", sConfig, true, false)
-	if (bLastTagFound)
-		JMap.setStr(configMapId, "report-file-enabled", val)
 	endif
 	val = getTagValue("warn-triangle-count", sConfig, true, false)
 	if (bLastTagFound)
@@ -499,7 +489,6 @@ string Function buildConfigString()
 	EndWhile
 	result += "	</wind>\n	<validation>\n"
 	result += "		" + entaggedValue("enabled", JMap.getStr(configMapId, "validationEnabled", "true")) + "\n"
-	result += "		" + entaggedValue("report-file-enabled", JMap.getStr(configMapId, "report-file-enabled", "true")) + "\n"
 	result += "		" + entaggedValue("warn-triangle-count", JMap.getStr(configMapId, "warn-triangle-count", "10000")) + "\n"
 	result += "		" + entaggedValue("output-dir", JMap.getStr(configMapId, "output-dir", "")) + "\n"
 	result += "	</validation>\n</configs>"
@@ -807,16 +796,6 @@ State ToggleValidationEnabled
 	EndEvent
 EndState
 
-State ToggleReportFileEnabled
-	Event OnSelectST()
-		toggleTag("report-file-enabled", "ToggleReportFileEnabled")
-	EndEvent
-
-	Event OnHighlightST()
-		SetInfoText("Check to write a detailed validation report file to Documents/My Games/Skyrim Special Edition/SKSE/.")
-	EndEvent
-EndState
-
 State SliderWarnTriangleCount
 	event OnSliderOpenST()
 		setOpenedSlider(0, 100000, 1000, "warn-triangle-count", 10000)
@@ -828,6 +807,22 @@ State SliderWarnTriangleCount
 
 	Event OnHighlightST()
 		SetInfoText("Warn when a physics-enabled NIF contains more triangles than this threshold.\nHigh triangle counts can impact simulation performance.")
+	EndEvent
+EndState
+
+State InputOutputDir
+	Event OnInputOpenST()
+		SetInputDialogStartText(JMap.getStr(configMapId, "output-dir", ""))
+	EndEvent
+
+	Event OnInputAcceptST(string a_input)
+		JMap.setStr(configMapId, "output-dir", a_input)
+		storeConfigAndSmpReset()
+		SetInputOptionValueST(a_input)
+	EndEvent
+
+	Event OnHighlightST()
+		SetInfoText("Folder where improved physics XML files will be written.\nLeave blank to disable improved file generation.")
 	EndEvent
 EndState
 
