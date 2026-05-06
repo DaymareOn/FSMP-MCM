@@ -123,6 +123,7 @@ Event OnPageReset(String aPage)
 		AddTextOptionST("SMPDumptree", "smp dumptree", sLabelClickMe)
 		AddTextOptionST("SMPQueryOverride", "smp QueryOverride", sLabelClickMe)
 		AddTextOptionST("SMPValidate", "smp validate", sLabelClickMe)
+		AddTextOptionST("SMPValidateGear", "smp validate gear", sLabelClickMe)
 	ElseIf (aPage == sLabelSimplification)
 		AddHeaderOption("Disabling some SMP")
 		AddToggleOptionST("ToggleSMPHairWhenWigEquipped", "Disable SMP hair when there's a wig", JMap.getStr(configMapId, "disableSMPHairWhenWigEquipped", "") == "true")
@@ -1002,5 +1003,16 @@ State SMPValidate
 
 	Event OnHighlightST()
 		SetInfoText("Click to run the FSMP asset validator now.\nValidation runs in the background. When complete, the console shows the results and the path of the timestamped report file written to your SKSE log directory.")
+	EndEvent
+EndState
+
+State SMPValidateGear
+	Event OnSelectST()
+		ConsoleUtil.ExecuteCommand("smp validate gear")
+		Debug.Messagebox("Equipped gear validation started in the background.\nOpen the console to see results and the report path when it completes.")
+    EndEvent
+
+	Event OnHighlightST()
+		SetInfoText("Click to run the FSMP asset validator on currently equipped gear only.\nValidation runs in the background. When complete, the console shows the results and the path of the timestamped report file written to your SKSE log directory.")
 	EndEvent
 EndState
