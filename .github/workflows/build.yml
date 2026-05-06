@@ -56,6 +56,22 @@ jobs:
           Write-Host "All scripts compiled successfully."
           Get-ChildItem Scripts/*.pex | ForEach-Object { Write-Host "  $($_.Name) - $($_.Length) bytes" }
 
+      - name: Commit Compiled Scripts
+        if: github.event_name != 'pull_request'
+        shell: powershell
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add Scripts/*.pex 2>$null
+          $staged = git diff --cached --name-only
+          if ($staged) {
+            git commit -m "chore: update compiled pex files [skip ci]"
+            git push
+            Write-Host "Committed updated pex files."
+          } else {
+            Write-Host "No changes to pex files, skipping commit."
+          }
+
       - name: Package Distributable
         shell: powershell
         run: |
