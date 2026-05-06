@@ -122,6 +122,7 @@ Event OnPageReset(String aPage)
 		AddTextOptionST("SMPDetail", "smp detail", sLabelClickMe)
 		AddTextOptionST("SMPDumptree", "smp dumptree", sLabelClickMe)
 		AddTextOptionST("SMPQueryOverride", "smp QueryOverride", sLabelClickMe)
+		AddTextOptionST("SMPValidate", "smp validate", sLabelClickMe)
 	ElseIf (aPage == sLabelSimplification)
 		AddHeaderOption("Disabling some SMP")
 		AddToggleOptionST("ToggleSMPHairWhenWigEquipped", "Disable SMP hair when there's a wig", JMap.getStr(configMapId, "disableSMPHairWhenWigEquipped", "") == "true")
@@ -990,5 +991,16 @@ State SMPQueryOverridde
     
 	Event OnHighlightST()
 		SetInfoText("Click to QueryOverridde")
+	EndEvent
+EndState
+
+State SMPValidate
+	Event OnSelectST()
+		ConsoleUtil.ExecuteCommand("smp validate")
+		Debug.Messagebox("Validation started in the background.\nOpen the console to see results and the report path when it completes.")
+    EndEvent
+
+	Event OnHighlightST()
+		SetInfoText("Click to run the FSMP asset validator now.\nValidation runs in the background. When complete, the console shows the results and the path of the timestamped report file written to your SKSE log directory.")
 	EndEvent
 EndState
