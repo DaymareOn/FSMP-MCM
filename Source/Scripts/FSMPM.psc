@@ -16,6 +16,7 @@ String sLabelSimplification = "Simplification"
 String sLabelQuality = "Performance"
 String sLabelWind = "Wind "; WIND seems to be a papyrus keyword...
 String sLabelPresets = "Presets "; presets seems to be a lowercase papyrus keyword...
+String sLabelValidation = "Validation "
 String sLabelClickMe
 String sLabelLoaded
 String sLastLoadedPresetName = ""
@@ -179,6 +180,24 @@ Event OnPageReset(String aPage)
 		AddSliderOptionST("SliderWindStrength", "Wind strength", JMap.getStr(configMapId, "windStrength", 2.0) as float, "{1}", enableWindOptionsFlag)
 		AddSliderOptionST("SliderNoWindDistance", "Distance for no wind", JMap.getStr(configMapId, "distanceForNoWind", 50.0) as float, "{0}", enableWindOptionsFlag)
 		AddSliderOptionST("SliderMaxWindDistance", "Distance for max wind", JMap.getStr(configMapId, "distanceForMaxWind", 2500.0) as float, "{0}", enableWindOptionsFlag)
+	ElseIf (aPage == sLabelValidation)
+		bool validationEnabled = JMap.getStr(configMapId, "validationEnabled", "") == "true"
+		int validationOptionsFlag = OPTION_FLAG_NONE
+		if (!validationEnabled)
+			validationOptionsFlag = OPTION_FLAG_DISABLED
+		endif
+		AddToggleOptionST("ToggleValidationEnabled", "Run FSMP validator at startup", validationEnabled)
+		AddToggleOptionST("ToggleReportFileEnabled", "Write validation report file", JMap.getStr(configMapId, "report-file-enabled", "") == "true", validationOptionsFlag)
+		AddSliderOptionST("SliderWarnTriangleCount", "Triangle count warning threshold", JMap.getStr(configMapId, "warn-triangle-count", "10000") as float, "{0}", validationOptionsFlag)
+		AddEmptyOption()
+		SetCursorPosition(1)
+		AddHeaderOption("Output folder")
+		string outputDir = JMap.getStr(configMapId, "output-dir", "")
+		if (outputDir == "")
+			outputDir = "(not set)"
+		endif
+		AddTextOption("Improved files output folder", outputDir, OPTION_FLAG_DISABLED)
+		AddTextOption("", "Edit configs.xml to change", OPTION_FLAG_DISABLED)
 	ElseIf (aPage == sLabelLogs)
 		AddSliderOptionST("SliderLog", "Choose your log level", JMap.getStr(configMapId, "logLevel", 0) as float)
 	ElseIf (aPage == sLabelPresets)
@@ -243,21 +262,23 @@ function initConfig()
 	sLabelLogs = "Logs"
 	sLabelSimplification = "Simplification"
 	sLabelQuality = "Performance"
+	sLabelValidation = "Validation "
 	sLabelWind = "Wind "; WIND seems to be a papyrus keyword...
 	sLabelPresets = "Presets "; presets seems to be a lowercase papyrus keyword...
 	sLabelClickMe = "Click me!"
 	sLabelLoaded = "Loaded!"
 
 
-	Pages = new String[8]
+	Pages = new String[9]
 	Pages[0] = sLabelSimplification
 	Pages[1] = sLabelQuality
 	Pages[2] = sLabelWind
-	Pages[3] = sLabelLogs
-	Pages[4] = ""
-	Pages[5] = sLabelCommands
-	Pages[6] = ""
-	Pages[7] = sLabelPresets
+	Pages[3] = sLabelValidation
+	Pages[4] = sLabelLogs
+	Pages[5] = ""
+	Pages[6] = sLabelCommands
+	Pages[7] = ""
+	Pages[8] = sLabelPresets
 
 	keys = new String[23]
 	keys[0] = "logLevel"; first serie
@@ -323,6 +344,12 @@ Function initMap()
 		JMap.setStr(configMapId, keys[index], defaultValues[index])
 		index += 1
 	EndWhile
+
+	; Validation settings — separate JMap keys to avoid collision with wind's "enabled"
+	JMap.setStr(configMapId, "validationEnabled", "true")
+	JMap.setStr(configMapId, "report-file-enabled", "true")
+	JMap.setStr(configMapId, "warn-triangle-count", "10000")
+	JMap.setStr(configMapId, "output-dir", "")
 EndFunction
 
 ; Initialize the map with config file values
@@ -344,7 +371,37 @@ bool function loadConfigFile(string path)
 		JMap.setStr(configMapId, tag, value)
 		index += 1
 	EndWhile
+
+	loadValidationSection(sConfig)
 	return allFound
+endfunction
+
+; Load the <validation> section into dedicated JMap keys.
+; Uses "validationEnabled" to avoid collision with wind's "enabled" key.
+function loadValidationSection(string sConfig)
+	string sectionTag = "<validation>"
+	int sectionStart = findStringInString(sectionTag, sConfig, 0)
+	if (sectionStart == -1)
+		; Section absent — defaults remain from initMap()
+		return
+	endif
+	startIndex = sectionStart
+	string val = getTagValue("enabled", sConfig, true, false)
+	if (bLastTagFound)
+		JMap.setStr(configMapId, "validationEnabled", val)
+	endif
+	val = getTagValue("report-file-enabled", sConfig, true, false)
+	if (bLastTagFound)
+		JMap.setStr(configMapId, "report-file-enabled", val)
+	endif
+	val = getTagValue("warn-triangle-count", sConfig, true, false)
+	if (bLastTagFound)
+		JMap.setStr(configMapId, "warn-triangle-count", val)
+	endif
+	val = getTagValue("output-dir", sConfig, true, false)
+	if (bLastTagFound)
+		JMap.setStr(configMapId, "output-dir", val)
+	endif
 endfunction
 
 bool function configMatchesPreset(string presetPath)
@@ -440,7 +497,12 @@ string Function buildConfigString()
 		result += "		" + ev + "\n"
 		index += 1
 	EndWhile
-	result += "	</wind>\n</configs>"
+	result += "	</wind>\n	<validation>\n"
+	result += "		" + entaggedValue("enabled", JMap.getStr(configMapId, "validationEnabled", "true")) + "\n"
+	result += "		" + entaggedValue("report-file-enabled", JMap.getStr(configMapId, "report-file-enabled", "true")) + "\n"
+	result += "		" + entaggedValue("warn-triangle-count", JMap.getStr(configMapId, "warn-triangle-count", "10000")) + "\n"
+	result += "		" + entaggedValue("output-dir", JMap.getStr(configMapId, "output-dir", "")) + "\n"
+	result += "	</validation>\n</configs>"
 	return result
 endFunction
 
@@ -731,6 +793,41 @@ State SliderMaxWindDistance
 
 	Event OnHighlightST()
 		SetInfoText("How far from an obstruction for wind to be not blocked.\nWind strength scales linearly between the distance for no wind and the distance for max wind. ")
+	EndEvent
+EndState
+
+State ToggleValidationEnabled
+	Event OnSelectST()
+		toggleTag("validationEnabled", "ToggleValidationEnabled")
+		ForcePageReset()
+	EndEvent
+
+	Event OnHighlightST()
+		SetInfoText("Check to run the FSMP asset validator when the game loads.\nResults are written to the SKSE log directory.")
+	EndEvent
+EndState
+
+State ToggleReportFileEnabled
+	Event OnSelectST()
+		toggleTag("report-file-enabled", "ToggleReportFileEnabled")
+	EndEvent
+
+	Event OnHighlightST()
+		SetInfoText("Check to write a detailed validation report file to Documents/My Games/Skyrim Special Edition/SKSE/.")
+	EndEvent
+EndState
+
+State SliderWarnTriangleCount
+	event OnSliderOpenST()
+		setOpenedSlider(0, 100000, 1000, "warn-triangle-count", 10000)
+	endEvent
+
+	event OnSliderAcceptST(float a_value)
+		setIntTag("warn-triangle-count", a_value as int)
+	endEvent
+
+	Event OnHighlightST()
+		SetInfoText("Warn when a physics-enabled NIF contains more triangles than this threshold.\nHigh triangle counts can impact simulation performance.")
 	EndEvent
 EndState
 
