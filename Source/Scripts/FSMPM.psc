@@ -997,10 +997,10 @@ EndState
 State SMPValidate
 	Event OnSelectST()
 		ConsoleUtil.ExecuteCommand("smp validate")
-		Debug.Messagebox("Done: smp validate. Check your hdtSMP64.log")
+		Debug.Messagebox("Validation started in the background.\nOpen the console to see results and the report path when it completes.")
     EndEvent
 
 	Event OnHighlightST()
-		SetInfoText("Click to run the FSMP asset validator now.\nResults are written to your SKSE log file (hdtSMP64.log).")
+		SetInfoText("Click to run the FSMP asset validator now.\nValidation runs in the background. When complete, the console shows the results and the path of the timestamped report file written to your SKSE log directory.")
 	EndEvent
 EndState
