@@ -122,8 +122,8 @@ Event OnPageReset(String aPage)
 		AddTextOptionST("SMPDetail", "smp detail", sLabelClickMe)
 		AddTextOptionST("SMPDumptree", "smp dumptree", sLabelClickMe)
 		AddTextOptionST("SMPQueryOverride", "smp QueryOverride", sLabelClickMe)
-		AddTextOptionST("SMPValidate", "smp validate", sLabelClickMe)
-		AddTextOptionST("SMPValidateGear", "smp validate gear", sLabelClickMe)
+		AddTextOptionST("SMPValidate", "smp report", sLabelClickMe)
+		AddTextOptionST("SMPValidateGear", "smp report gear", sLabelClickMe)
 	ElseIf (aPage == sLabelSimplification)
 		AddHeaderOption("Disabling some SMP")
 		AddToggleOptionST("ToggleSMPHairWhenWigEquipped", "Disable SMP hair when there's a wig", JMap.getStr(configMapId, "disableSMPHairWhenWigEquipped", "") == "true")
@@ -997,7 +997,7 @@ EndState
 
 State SMPValidate
 	Event OnSelectST()
-		ConsoleUtil.ExecuteCommand("smp validate")
+		ConsoleUtil.ExecuteCommand("smp report")
 		Debug.Messagebox("Validation started in the background.\nOpen the console to see results and the report path when it completes.")
     EndEvent
 
