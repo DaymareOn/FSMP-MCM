@@ -984,14 +984,14 @@ State SMPList
 	EndEvent
 EndState
 
-State SMPQueryOverridde
+State SMPQueryOverride
 	Event OnSelectST()
-		ConsoleUtil.ExecuteCommand("smp QueryOverridde")
-		Debug.Messagebox("Done: smp QueryOverridde")
+		ConsoleUtil.ExecuteCommand("smp QueryOverride")
+		Debug.Messagebox("Done: smp QueryOverride")
     EndEvent
-    
+
 	Event OnHighlightST()
-		SetInfoText("Click to QueryOverridde")
+		SetInfoText("Click to QueryOverride")
 	EndEvent
 EndState
 
