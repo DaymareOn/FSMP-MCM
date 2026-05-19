@@ -192,9 +192,9 @@ Event OnPageReset(String aPage)
 		AddSliderOptionST("SliderWarnTriangleCount", "Triangle count warning threshold", JMap.getStr(configMapId, "warn-triangle-count", "10000") as float, "{0}", validationOptionsFlag)
 		AddEmptyOption()
 		SetCursorPosition(1)
-		AddHeaderOption("Output folder")
-		string outputDir = JMap.getStr(configMapId, "output-dir", "")
-		AddInputOptionST("InputOutputDir", "Improved files output folder", outputDir, validationOptionsFlag)
+		AddHeaderOption("Mods folder")
+		string modsDir = JMap.getStr(configMapId, "mods-dir", "")
+		AddInputOptionST("InputModsDir", "Mods folder (MO2 mods/ or Vortex staging)", modsDir, validationOptionsFlag)
 	ElseIf (aPage == sLabelLogs)
 		AddSliderOptionST("SliderLog", "Choose your log level", JMap.getStr(configMapId, "logLevel", 0) as float)
 	ElseIf (aPage == sLabelPresets)
@@ -345,7 +345,7 @@ Function initMap()
 	; Validation settings — separate JMap keys to avoid collision with wind's "enabled"
 	JMap.setStr(configMapId, "validationEnabled", "true")
 	JMap.setStr(configMapId, "warn-triangle-count", "10000")
-	JMap.setStr(configMapId, "output-dir", "")
+	JMap.setStr(configMapId, "mods-dir", "")
 EndFunction
 
 ; Initialize the map with config file values
@@ -390,9 +390,9 @@ function loadValidationSection(string sConfig)
 	if (bLastTagFound)
 		JMap.setStr(configMapId, "warn-triangle-count", val)
 	endif
-	val = getTagValue("output-dir", sConfig, true, false)
+	val = getTagValue("mods-dir", sConfig, true, false)
 	if (bLastTagFound)
-		JMap.setStr(configMapId, "output-dir", val)
+		JMap.setStr(configMapId, "mods-dir", val)
 	endif
 endfunction
 
@@ -492,7 +492,7 @@ string Function buildConfigString()
 	result += "	</wind>\n	<validation>\n"
 	result += "		" + entaggedValue("enabled", JMap.getStr(configMapId, "validationEnabled", "true")) + "\n"
 	result += "		" + entaggedValue("warn-triangle-count", JMap.getStr(configMapId, "warn-triangle-count", "10000")) + "\n"
-	result += "		" + entaggedValue("output-dir", JMap.getStr(configMapId, "output-dir", "")) + "\n"
+	result += "		" + entaggedValue("mods-dir", JMap.getStr(configMapId, "mods-dir", "")) + "\n"
 	result += "	</validation>\n</configs>"
 	return result
 endFunction
@@ -812,19 +812,19 @@ State SliderWarnTriangleCount
 	EndEvent
 EndState
 
-State InputOutputDir
+State InputModsDir
 	Event OnInputOpenST()
-		SetInputDialogStartText(JMap.getStr(configMapId, "output-dir", ""))
+		SetInputDialogStartText(JMap.getStr(configMapId, "mods-dir", ""))
 	EndEvent
 
 	Event OnInputAcceptST(string a_input)
-		JMap.setStr(configMapId, "output-dir", a_input)
+		JMap.setStr(configMapId, "mods-dir", a_input)
 		storeConfigAndSmpReset()
 		SetInputOptionValueST(a_input)
 	EndEvent
 
 	Event OnHighlightST()
-		SetInfoText("Folder where improved physics XML files will be written.\nLeave blank to disable improved file generation.")
+		SetInfoText("Your mod manager's mods folder (MO2: the mods/ directory, Vortex: the staging folder).\nFSMP-out will be created inside it and must be activated as a mod.\nLeave blank to disable NIF/XML improvement.")
 	EndEvent
 EndState
 

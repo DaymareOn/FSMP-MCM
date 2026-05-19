@@ -28,4 +28,7 @@
 		<distanceForNoWind>50.0</distanceForNoWind>
 		<distanceForMaxWind>2000</distanceForMaxWind>
 	</wind>
+	<validation>
+		<mods-dir></mods-dir>
+	</validation>
 </configs>
