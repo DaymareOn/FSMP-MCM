@@ -423,7 +423,7 @@ string Function buildConfigString()
 		index += 1
 	EndWhile
 	result += "	</smp>\n	<solver>\n"
-	While (index < 19)
+	While (index < 18)
 		string tag = keys[index]
 		value = JMap.getStr(configMapId, tag, "")
 		string ev = entaggedValue(tag, value) 
@@ -431,7 +431,7 @@ string Function buildConfigString()
 		index += 1
 	EndWhile
 	result += "	</solver>\n	<wind>\n"
-	While (index < 23)
+	While (index < 22)
 		string tag = keys[index]
 		value = JMap.getStr(configMapId, tag, "")
 		string ev = entaggedValue(tag, value) 
