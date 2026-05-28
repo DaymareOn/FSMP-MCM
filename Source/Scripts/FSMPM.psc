@@ -30,7 +30,7 @@ bool bDependenciesOK = false
 string sMissingDependencies = ""
 
 int Function GetVersion()
-	Return 302
+	Return 307
 EndFunction
 
 ; #################################################################################################
@@ -79,10 +79,10 @@ bool Function checkDependencies()
 EndFunction
 
 event OnVersionUpdate(int NewVersion)
-	if (NewVersion >= 302 && CurrentVersion < 302)
+	if (NewVersion >= 307 && CurrentVersion < 307)
 		initConfig()
 		sLastLoadedPresetName = ""
-		Debug.Notification("FSMP MCM updated to version 3.0.2.")
+		Debug.Notification("FSMP MCM updated to version 3.0.7.")
 	endif
 endEvent
 
@@ -259,7 +259,7 @@ function initConfig()
 	Pages[6] = ""
 	Pages[7] = sLabelPresets
 
-	keys = new String[23]
+	keys = new String[22]
 	keys[0] = "logLevel"; first serie
 	keys[1] = "enableNPCFaceParts"; unused by FSMP...
 	keys[2] = "disableSMPHairWhenWigEquipped"
@@ -275,16 +275,15 @@ function initConfig()
 	keys[12] = "sampleSize"
 	keys[13] = "disable1stPersonViewPhysics"
 	keys[14] = "numIterations"; second serie
-	keys[15] = "groupEnableMLCP"; unused by FSMP...
-	keys[16] = "erp"
-	keys[17] = "min-fps"
-	keys[18] = "maxSubSteps"
-	keys[19] = "enabled"; third serie
-	keys[20] = "windStrength"
-	keys[21] = "distanceForNoWind"
-	keys[22] = "distanceForMaxWind"
+	keys[15] = "erp"
+	keys[16] = "min-fps"
+	keys[17] = "maxSubSteps"
+	keys[18] = "enabled"; third serie
+	keys[19] = "windStrength"
+	keys[20] = "distanceForNoWind"
+	keys[21] = "distanceForMaxWind"
 
-	defaultValues = new String[23]
+	defaultValues = new String[22]
 	defaultValues[0] = "0"; first serie
 	defaultValues[1] = "true"; unused by FSMP...
 	defaultValues[2] = "true"
@@ -300,14 +299,13 @@ function initConfig()
 	defaultValues[12] = "5"
 	defaultValues[13] = "false"
 	defaultValues[14] = "10"; second serie
-	defaultValues[15] = "false"; unused by FSMP...
-	defaultValues[16] = "0.2"
-	defaultValues[17] = "60"
-	defaultValues[18] = "2"
-	defaultValues[19] = "true"; third serie
-	defaultValues[20] = "2.0"
-	defaultValues[21] = "50.0"
-	defaultValues[22] = "2500"
+	defaultValues[15] = "0.2"
+	defaultValues[16] = "60"
+	defaultValues[17] = "2"
+	defaultValues[18] = "true"; third serie
+	defaultValues[19] = "2.0"
+	defaultValues[20] = "50.0"
+	defaultValues[21] = "2500"
 
 	presetsInt = new int[50]
 endfunction
@@ -425,7 +423,7 @@ string Function buildConfigString()
 		index += 1
 	EndWhile
 	result += "	</smp>\n	<solver>\n"
-	While (index < 19)
+	While (index < 18)
 		string tag = keys[index]
 		value = JMap.getStr(configMapId, tag, "")
 		string ev = entaggedValue(tag, value) 
@@ -433,7 +431,7 @@ string Function buildConfigString()
 		index += 1
 	EndWhile
 	result += "	</solver>\n	<wind>\n"
-	While (index < 23)
+	While (index < 22)
 		string tag = keys[index]
 		value = JMap.getStr(configMapId, tag, "")
 		string ev = entaggedValue(tag, value) 
