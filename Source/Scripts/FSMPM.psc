@@ -30,7 +30,7 @@ bool bDependenciesOK = false
 string sMissingDependencies = ""
 
 int Function GetVersion()
-	Return 307
+	Return 310
 EndFunction
 
 ; #################################################################################################
@@ -84,6 +84,11 @@ event OnVersionUpdate(int NewVersion)
 		sLastLoadedPresetName = ""
 		Debug.Notification("FSMP MCM updated to version 3.0.7.")
 	endif
+	if (NewVersion >= 310 && CurrentVersion < 310)
+		initConfig()
+		sLastLoadedPresetName = ""
+		Debug.Notification("FSMP MCM updated to version 3.1.0.")
+	endif
 endEvent
 
 event OnGameReload()
@@ -125,6 +130,7 @@ Event OnPageReset(String aPage)
 		AddHeaderOption("Disabling some SMP")
 		AddToggleOptionST("ToggleSMPHairWhenWigEquipped", "Disable SMP hair when there's a wig", JMap.getStr(configMapId, "disableSMPHairWhenWigEquipped", "") == "true")
 		AddToggleOptionST("Toggle1stPersonViewPhysics", "No SMP for your PC when in 1st person view", JMap.getStr(configMapId, "disable1stPersonViewPhysics", "") == "true")
+		AddToggleOptionST("ToggleSkipDeadActors", "Skip physics for dead actors", JMap.getStr(configMapId, "skipDeadActors", "") == "true")
 		;AddToggleOptionST("ToggleNPCFaceParts", "Enable NPC face parts", JMap.getStr(configMapId, "enableNPCFaceParts", "") == "true")
 		AddEmptyOption()
 		AddHeaderOption("Enabling nearest NPCs")
@@ -259,7 +265,7 @@ function initConfig()
 	Pages[6] = ""
 	Pages[7] = sLabelPresets
 
-	keys = new String[22]
+	keys = new String[23]
 	keys[0] = "logLevel"; first serie
 	keys[1] = "enableNPCFaceParts"; unused by FSMP...
 	keys[2] = "disableSMPHairWhenWigEquipped"
@@ -274,16 +280,17 @@ function initConfig()
 	keys[11] = "budgetMs"
 	keys[12] = "sampleSize"
 	keys[13] = "disable1stPersonViewPhysics"
-	keys[14] = "numIterations"; second serie
-	keys[15] = "erp"
-	keys[16] = "min-fps"
-	keys[17] = "maxSubSteps"
-	keys[18] = "enabled"; third serie
-	keys[19] = "windStrength"
-	keys[20] = "distanceForNoWind"
-	keys[21] = "distanceForMaxWind"
+	keys[14] = "skipDeadActors"
+	keys[15] = "numIterations"; second serie
+	keys[16] = "erp"
+	keys[17] = "min-fps"
+	keys[18] = "maxSubSteps"
+	keys[19] = "enabled"; third serie
+	keys[20] = "windStrength"
+	keys[21] = "distanceForNoWind"
+	keys[22] = "distanceForMaxWind"
 
-	defaultValues = new String[22]
+	defaultValues = new String[23]
 	defaultValues[0] = "0"; first serie
 	defaultValues[1] = "true"; unused by FSMP...
 	defaultValues[2] = "true"
@@ -298,14 +305,15 @@ function initConfig()
 	defaultValues[11] = "3.5"
 	defaultValues[12] = "5"
 	defaultValues[13] = "false"
-	defaultValues[14] = "10"; second serie
-	defaultValues[15] = "0.2"
-	defaultValues[16] = "60"
-	defaultValues[17] = "2"
-	defaultValues[18] = "true"; third serie
-	defaultValues[19] = "2.0"
-	defaultValues[20] = "50.0"
-	defaultValues[21] = "2500"
+	defaultValues[14] = "false"; skipDeadActors
+	defaultValues[15] = "10"; second serie
+	defaultValues[16] = "0.2"
+	defaultValues[17] = "60"
+	defaultValues[18] = "2"
+	defaultValues[19] = "true"; third serie
+	defaultValues[20] = "2.0"
+	defaultValues[21] = "50.0"
+	defaultValues[22] = "2500"
 
 	presetsInt = new int[50]
 endfunction
@@ -415,7 +423,7 @@ string Function buildConfigString()
 	string result = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<configs>\n	<smp>\n"
 	int index = 0
 	string value = ""
-	While (index < 14)
+	While (index < 15)
 		string tag = keys[index]
 		value = JMap.getStr(configMapId, tag, "")
 		string ev = entaggedValue(tag, value) 
@@ -423,7 +431,7 @@ string Function buildConfigString()
 		index += 1
 	EndWhile
 	result += "	</smp>\n	<solver>\n"
-	While (index < 18)
+	While (index < 19)
 		string tag = keys[index]
 		value = JMap.getStr(configMapId, tag, "")
 		string ev = entaggedValue(tag, value) 
@@ -431,7 +439,7 @@ string Function buildConfigString()
 		index += 1
 	EndWhile
 	result += "	</solver>\n	<wind>\n"
-	While (index < 22)
+	While (index < 23)
 		string tag = keys[index]
 		value = JMap.getStr(configMapId, tag, "")
 		string ev = entaggedValue(tag, value) 
@@ -799,9 +807,19 @@ State Toggle1stPersonViewPhysics
 	Event OnSelectST()
 		toggleTag("disable1stPersonViewPhysics", "Toggle1stPersonViewPhysics")
 	EndEvent
-	
+
 	Event OnHighlightST()
 		SetInfoText("Check to avoid calculating your character physics when in 1st person view")
+	EndEvent
+EndState
+
+State ToggleSkipDeadActors
+	Event OnSelectST()
+		toggleTag("skipDeadActors", "ToggleSkipDeadActors")
+	EndEvent
+
+	Event OnHighlightST()
+		SetInfoText("Check to skip physics for dead actors (corpses), to save performance. Never affects the player.")
 	EndEvent
 EndState
 
