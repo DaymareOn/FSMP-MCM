@@ -16,6 +16,7 @@
 		<sampleSize>5</sampleSize>
 		<disable1stPersonViewPhysics>false</disable1stPersonViewPhysics>
 		<skipDeadActors>false</skipDeadActors>
+		<minScreenSizePercent>0</minScreenSizePercent>
 	</smp>
 	<solver>
 		<numIterations>20</numIterations>
