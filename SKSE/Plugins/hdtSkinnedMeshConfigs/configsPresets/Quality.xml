@@ -15,6 +15,7 @@
 		<budgetMs>5</budgetMs>
 		<sampleSize>5</sampleSize>
 		<disable1stPersonViewPhysics>false</disable1stPersonViewPhysics>
+		<skipDeadActors>false</skipDeadActors>
 	</smp>
 	<solver>
 		<numIterations>32</numIterations>
