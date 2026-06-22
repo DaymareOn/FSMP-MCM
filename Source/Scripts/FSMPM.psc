@@ -135,6 +135,7 @@ Event OnPageReset(String aPage)
 		AddEmptyOption()
 		AddHeaderOption("Enabling nearest NPCs")
 		AddSliderOptionST("SliderMinCullingDistance", "SMP is always on below this distance", JMap.getStr(configMapId, "minCullingDistance", 300) as float, "{0}")
+		AddSliderOptionST("SliderMinScreenSizePercent", "Skip SMP for NPCs smaller on screen than", JMap.getStr(configMapId, "minScreenSizePercent", 0) as float, "{1}%")
 		SetCursorPosition(1)
 		AddHeaderOption("Disabling SMP NPCs")
 		bool autoAdjust = JMap.getStr(configMapId, "autoAdjustMaxSkeletons", "") == "true"
@@ -265,7 +266,7 @@ function initConfig()
 	Pages[6] = ""
 	Pages[7] = sLabelPresets
 
-	keys = new String[23]
+	keys = new String[24]
 	keys[0] = "logLevel"; first serie
 	keys[1] = "enableNPCFaceParts"; unused by FSMP...
 	keys[2] = "disableSMPHairWhenWigEquipped"
@@ -281,16 +282,17 @@ function initConfig()
 	keys[12] = "sampleSize"
 	keys[13] = "disable1stPersonViewPhysics"
 	keys[14] = "skipDeadActors"
-	keys[15] = "numIterations"; second serie
-	keys[16] = "erp"
-	keys[17] = "min-fps"
-	keys[18] = "maxSubSteps"
-	keys[19] = "enabled"; third serie
-	keys[20] = "windStrength"
-	keys[21] = "distanceForNoWind"
-	keys[22] = "distanceForMaxWind"
+	keys[15] = "minScreenSizePercent"
+	keys[16] = "numIterations"; second serie
+	keys[17] = "erp"
+	keys[18] = "min-fps"
+	keys[19] = "maxSubSteps"
+	keys[20] = "enabled"; third serie
+	keys[21] = "windStrength"
+	keys[22] = "distanceForNoWind"
+	keys[23] = "distanceForMaxWind"
 
-	defaultValues = new String[23]
+	defaultValues = new String[24]
 	defaultValues[0] = "0"; first serie
 	defaultValues[1] = "true"; unused by FSMP...
 	defaultValues[2] = "true"
@@ -306,14 +308,15 @@ function initConfig()
 	defaultValues[12] = "5"
 	defaultValues[13] = "false"
 	defaultValues[14] = "false"; skipDeadActors
-	defaultValues[15] = "10"; second serie
-	defaultValues[16] = "0.2"
-	defaultValues[17] = "60"
-	defaultValues[18] = "2"
-	defaultValues[19] = "true"; third serie
-	defaultValues[20] = "2.0"
-	defaultValues[21] = "50.0"
-	defaultValues[22] = "2500"
+	defaultValues[15] = "0"; minScreenSizePercent
+	defaultValues[16] = "10"; second serie
+	defaultValues[17] = "0.2"
+	defaultValues[18] = "60"
+	defaultValues[19] = "2"
+	defaultValues[20] = "true"; third serie
+	defaultValues[21] = "2.0"
+	defaultValues[22] = "50.0"
+	defaultValues[23] = "2500"
 
 	presetsInt = new int[50]
 endfunction
@@ -423,7 +426,7 @@ string Function buildConfigString()
 	string result = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<configs>\n	<smp>\n"
 	int index = 0
 	string value = ""
-	While (index < 15)
+	While (index < 16)
 		string tag = keys[index]
 		value = JMap.getStr(configMapId, tag, "")
 		string ev = entaggedValue(tag, value) 
@@ -431,7 +434,7 @@ string Function buildConfigString()
 		index += 1
 	EndWhile
 	result += "	</smp>\n	<solver>\n"
-	While (index < 19)
+	While (index < 20)
 		string tag = keys[index]
 		value = JMap.getStr(configMapId, tag, "")
 		string ev = entaggedValue(tag, value) 
@@ -439,7 +442,7 @@ string Function buildConfigString()
 		index += 1
 	EndWhile
 	result += "	</solver>\n	<wind>\n"
-	While (index < 23)
+	While (index < 24)
 		string tag = keys[index]
 		value = JMap.getStr(configMapId, tag, "")
 		string ev = entaggedValue(tag, value) 
@@ -597,6 +600,21 @@ State SliderMinCullingDistance
 
 	Event OnHighlightST()
 		SetInfoText("The distance from camera below which NPCs SMP is always calculated.\nThis is useful when a NPC is just behind the camera, and his cape should float in front of you.\nWithout this, as the camera doesn't see the NPC, his physics is disabled.")
+	EndEvent
+EndState
+
+State SliderMinScreenSizePercent
+	event OnSliderOpenST()
+		setOpenedSlider(0.0, 100.0, 0.1, "minScreenSizePercent", 0)
+	endEvent
+
+	event OnSliderAcceptST(float a_value)
+		setFloatTag("minScreenSizePercent", a_value, "{1}")
+		SetSliderOptionValueST(a_value, "{1}%")
+	endEvent
+
+	Event OnHighlightST()
+		SetInfoText("Skip SMP for non-player NPCs whose on-screen size is below this percentage of screen height (0 = off).\nHigher skips more distant/small NPCs. The player is never affected.")
 	EndEvent
 EndState
 
