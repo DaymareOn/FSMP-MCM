@@ -1,23 +1,18 @@
-# FSMP-MCM
+# FSMP-MCM — splash-only branch
 
 ![Build Status](https://github.com/DaymareOn/FSMP-MCM/actions/workflows/build.yml/badge.svg)
 
-The Faster Skinned Mesh Physics Mod Configuration Menu for Skyrim.
+The save-preserving stub of the former Faster Skinned Mesh Physics Mod Configuration Menu for Skyrim.
 
 ## Overview
 
-FSMP-MCM is a SkyUI Mod Configuration Menu (MCM) designed for the [Faster HDT-SMP](https://www.nexusmods.com/skyrimspecialedition/mods/57339) (FSMP) physics engine plugin. It enables players to intuitively control and fine-tune physics settings directly from within the game.
+FSMP 4 moved all configuration to the SKSE Menu Framework menu built into [Faster HDT-SMP](https://www.nexusmods.com/skyrimspecialedition/mods/57339), and the SkyUI MCM was retired. But Skyrim destroys a save-game when an esp it references is removed, so players updating mid-playthrough from FSMP 3.x need to keep `FSMPM - The FSMP MCM.esp` alive.
 
-## Features
+This branch is that lifeline: the esp is unchanged (existing saves keep their plugin reference), and the menu is reduced to a single splash page showing the FSMP logo and the pointer "Use SKSE Menu Framework for the new menu". Nothing is configured here, and the runtime dependencies of the full MCM (JContainers, PapyrusUtil, ConsoleUtil) are no longer required. On saves updating from the full MCM, the stub releases the JContainers map the full MCM kept in the co-save.
 
-Instead of direct memory injection, this MCM dynamically recompiles and overwrites the FSMP `configs.xml` on the fly, immediately followed by an `smp reset` console command so the backend picks up the changes seamlessly.
+The [hdtSMP64](https://github.com/DaymareOn/hdtSMP64) continuous integration fetches this branch — and only this branch — to package the stub as an optional install in the FSMP FOMOD, for players who update mid-game.
 
-Key features broken down by menu pages:
-- **Master Switch & Commands:** Easily toggle SMP globally, or trigger debug console commands like `smp list`, `smp detail`, and `smp dumptree` without manually typing them.
-- **Simplification (Culling):** Save performance by disabling 1st-person physics, turning off SMP hair when wigs are equipped, or auto-adjusting the maximum active SMP skeletons based on allowed frame time.
-- **Simulation Quality:** Dial in physics precision by tweaking iterations, substeps and ERP toggles. Includes rotation limits to prevent physics explosions on sharp turns.
-- **Wind Parameters:** Enable and manipulate FSMP-native wind by setting wind strength scales and establishing distance cutoffs for wind calculation.
-- **Logging & Presets:** Quickly adjust the hdtSMP64 log level (Fatal to Debug) or swap between saved XML presets in-game.
+The full 3.x MCM lives in this repository's history on the `main` branch.
 
 ## Development & Building
 

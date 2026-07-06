@@ -2,12 +2,12 @@ name: Build FSMP MCM
 
 on:
   push:
-    branches: [main]
+    branches: [splash-only]
     tags:
       - 'v*.*.*'
       - 'v*.*'
   pull_request:
-    branches: [main]
+    branches: [splash-only]
   workflow_dispatch:
 
 permissions:
@@ -35,9 +35,7 @@ jobs:
             (Resolve-Path "Dependencies/SkyUI-Community/source/scripts"),
             (Resolve-Path "Dependencies/Stubs/BaseGame"),
             (Resolve-Path "Dependencies/Stubs/SKSE"),
-            (Resolve-Path "Dependencies/Stubs/JContainers"),
-            (Resolve-Path "Dependencies/Stubs/PapyrusUtil"),
-            (Resolve-Path "Dependencies/Stubs/ConsoleUtil")
+            (Resolve-Path "Dependencies/Stubs/JContainers")
           ) -join ";"
           if (-not (Test-Path "Scripts")) { New-Item -ItemType Directory -Path "Scripts" }
           Remove-Item "Scripts/*.pex" -ErrorAction SilentlyContinue
@@ -78,14 +76,11 @@ jobs:
           $buildDir = "Build/FSMPM - The FSMP MCM"
           if (Test-Path "Build") { Remove-Item -Recurse -Force "Build" }
           New-Item -ItemType Directory -Path "$buildDir/Scripts" -Force
-          New-Item -ItemType Directory -Path "$buildDir/SKSE/Plugins/hdtSkinnedMeshConfigs/configsPresets" -Force
           New-Item -ItemType Directory -Path "$buildDir/Source/Scripts" -Force
           New-Item -ItemType Directory -Path "$buildDir/Interface/FSMP" -Force
 
           Copy-Item "FSMPM - The FSMP MCM.esp" $buildDir/
           Copy-Item Scripts/*.pex "$buildDir/Scripts/"
-          Copy-Item SKSE/Plugins/hdtSkinnedMeshConfigs/configs.xml "$buildDir/SKSE/Plugins/hdtSkinnedMeshConfigs/"
-          Copy-Item SKSE/Plugins/hdtSkinnedMeshConfigs/configsPresets/*.xml "$buildDir/SKSE/Plugins/hdtSkinnedMeshConfigs/configsPresets/"
           Copy-Item Source/Scripts/*.psc "$buildDir/Source/Scripts/"
           Copy-Item interface/FSMP/Logo.dds "$buildDir/Interface/FSMP/"
 
