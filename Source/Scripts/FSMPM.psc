@@ -49,6 +49,6 @@ endfunction
 ; displayed (ConfigPanel.loadCustomContent sets _optionsList._visible = false), so the
 ; title bar is the only text that can appear together with the logo.
 Event OnPageReset(String aPage)
-	SetTitleText("Use SKSE Menu Framework for the new menu")
+	SetTitleText("Use the SKSE Menu Framework menu")
 	LoadCustomContent("FSMP/Logo.dds")
 EndEvent
