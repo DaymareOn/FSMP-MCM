@@ -26,8 +26,6 @@
         <Import>C:\Dev\SkyrimMods\SKSE64\Data\Scripts\Source</Import>
         
         <!-- Scripting Utilities - ADJUST THESE PATHS -->
-        <Import>C:\Dev\SkyrimMods\PapyrusUtil\Source\Scripts</Import>
-        <Import>C:\Dev\SkyrimMods\ConsoleUtilSSE\Scripts\Source</Import>
         <Import>C:\Dev\SkyrimMods\JContainers\scripts\source</Import>
     </Imports>
     <Folders>
@@ -38,7 +36,6 @@
     <!--
     <PostBuildEvent Description="Deploy to local dev instances" UseInBuild="true">
         <Command>xcopy "Scripts" "C:\Your\Game\Data\Scripts\" /E/Y</Command>
-        <Command>xcopy "SKSE" "C:\Your\Game\Data\SKSE\" /E/Y</Command>
         <Command>xcopy "Source" "C:\Your\Game\Data\Source\" /E/Y</Command>
     </PostBuildEvent>
     -->

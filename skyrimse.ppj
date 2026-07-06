@@ -19,8 +19,6 @@
         <Import>./Dependencies/Stubs/BaseGame</Import>
         <Import>./Dependencies/Stubs/SKSE</Import>
         <Import>./Dependencies/Stubs/JContainers</Import>
-        <Import>./Dependencies/Stubs/PapyrusUtil</Import>
-        <Import>./Dependencies/Stubs/ConsoleUtil</Import>
     </Imports>
     <Folders>
         <!-- Relative path to folder containing .psc Papyrus source code files for this project -->
@@ -32,19 +30,15 @@
             <Include>FSMPM - The FSMP MCM.esp</Include>
             <Match In="Scripts">*.pex</Match>
             <Match In="Source\Scripts">*.psc</Match>
-            <Match In="SKSE\Plugins\hdtSkinnedMeshConfigs">configs.xml</Match>
-            <Match In="SKSE\Plugins\hdtSkinnedMeshConfigs\configsPresets">*.xml</Match>
         </ZipFile>
     </ZipFiles>
     <!-- Machine-specific deployment events. Uncomment and adjust paths if needed. -->
     <!--
     <PostBuildEvent Description="Deploy to local dev instances" UseInBuild="true">
         <Command>xcopy "Scripts" "C:\Games\Nolvus\Instances\Nolvus Natural Lighting\MODS\mods\FSMPM - The FSMP MCM Dev\Scripts\" /E/Y</Command>
-        <Command>xcopy "SKSE" "C:\Games\Nolvus\Instances\Nolvus Natural Lighting\MODS\mods\FSMPM - The FSMP MCM Dev\SKSE\" /E/Y</Command>
         <Command>xcopy "Source" "C:\Games\Nolvus\Instances\Nolvus Natural Lighting\MODS\mods\FSMPM - The FSMP MCM Dev\Source\" /E/Y</Command>
 
         <Command>xcopy "Scripts" "C:\Games\Faster HDT-SMP\FSMPM - The FSMP MCM\Scripts\" /E/Y</Command>
-        <Command>xcopy "SKSE" "C:\Games\Faster HDT-SMP\FSMPM - The FSMP MCM\SKSE\" /E/Y</Command>
         <Command>xcopy "Source" "C:\Games\Faster HDT-SMP\FSMPM - The FSMP MCM\Source\" /E/Y</Command>
     </PostBuildEvent>
     -->

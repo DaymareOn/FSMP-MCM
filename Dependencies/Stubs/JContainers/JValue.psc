@@ -3,3 +3,4 @@ ScriptName JValue
 
 Int function retain(Int object, String tag="") global native
 function release(Int object) global native
+function releaseObjectsWithTag(String tag) global native
