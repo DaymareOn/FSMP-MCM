@@ -44,11 +44,13 @@ function initConfig()
 	Pages = noPages
 endfunction
 
-; The single splash page: the FSMP logo, and the pointer to the new menu on top of it.
+; The single splash page: the pointer to the new menu, with the FSMP logo below it.
+; The custom content layer draws on top of the option rows, so the logo is shifted
+; down past the two text rows instead of covering them.
 Event OnPageReset(String aPage)
-	LoadCustomContent("FSMP/Logo.dds")
 	SetCursorFillMode(TOP_TO_BOTTOM)
 	SetCursorPosition(0)
 	AddHeaderOption("The FSMP menu has moved")
 	AddTextOption("Use SKSE Menu Framework for the new menu", "", OPTION_FLAG_DISABLED)
+	LoadCustomContent("FSMP/Logo.dds", 0, 80)
 EndEvent
